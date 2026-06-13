@@ -1,1 +1,0 @@
-# 设置第三方登录、限制登录方式 <Badge type="tip" text="需要正版 Minecraft" />
