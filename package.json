@@ -13,13 +13,6 @@
     ],
     "author": "PCL-Community",
     "license": "MIT",
-    "devEngines": {
-        "packageManager": {
-            "name": "pnpm",
-            "version": "^11.2.2",
-            "onFail": "download"
-        }
-    },
     "type": "module",
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.0",
@@ -32,5 +25,10 @@
     },
     "dependencies": {
         "@pcl-community/plain-ui-vue-css-ts": "^1"
+    },
+    "engines": {
+        "node": ">=24",
+        "pnpm": ">=11"
     }
 }
+
