@@ -3,6 +3,7 @@ import { withSidebar } from "vitepress-sidebar";
 import { withI18n } from "vitepress-i18n";
 import { VitePressI18nOptions } from "vitepress-i18n/types";
 import { generateI18nSidebarConfig } from "./utils/i10nSidebar";
+import tailwindcss from "@tailwindcss/vite";
 
 const vitepressConfig: UserConfig = {
     srcDir: "docs",
@@ -17,6 +18,10 @@ const vitepressConfig: UserConfig = {
 
     rewrites: {
         "zhHans/:rest*": ":rest*",
+    },
+
+    vite: {
+        plugins: [tailwindcss()],
     },
 
     themeConfig: {

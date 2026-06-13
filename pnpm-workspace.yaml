@@ -1,2 +1,5 @@
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - "@pcl-community/plain-ui-vue-css-ts@1.0.2"
+  - '@pcl-community/plain-ui-vue-tailwind-ts@1.0.1'
