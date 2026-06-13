@@ -76,29 +76,29 @@ PCL 内置了一些 Minecraft 方块与物品图片，可以直接使用。
 
 使用时，将上方对应行的 Source 复制到 MyListItem 的 Logo 属性处即可。
 
-![图片](pack://application:,,,/images/Blocks/CommandBlock.png)
+![图片](/pack/Images/Blocks/CommandBlock.png)
 
-![图片](pack://application:,,,/images/Blocks/Cobblestone.png)
+![图片](/pack/Images/Blocks/CobbleStone.png)
 
-![图片](pack://application:,,,/images/Blocks/GoldBlock.png)
+![图片](/pack/Images/Blocks/GoldBlock.png)
 
-![图片](pack://application:,,,/images/Blocks/Grass.png)
+![图片](/pack/Images/Blocks/Grass.png)
 
-![图片](pack://application:,,,/images/Blocks/GrassPath.png)
+![图片](/pack/Images/Blocks/GrassPath.png)
 
-![图片](pack://application:,,,/images/Blocks/Anvil.png)
+![图片](/pack/Images/Blocks/Anvil.png)
 
-![图片](pack://application:,,,/images/Blocks/RedstoneBlock.png)
+![图片](/pack/Images/Blocks/RedstoneBlock.png)
 
-![图片](pack://application:,,,/images/Blocks/RedstoneLampOn.png)
+![图片](/pack/Images/Blocks/RedstoneLampOn.png)
 
-![图片](pack://application:,,,/images/Blocks/RedstoneLampOff.png)
+![图片](/pack/Images/Blocks/RedstoneLampOff.png)
 
-![图片](pack://application:,,,/images/Blocks/Egg.png)
+![图片](/pack/Images/Blocks/Egg.png)
 
-![图片](pack://application:,,,/images/Blocks/Fabric.png)
+![图片](/pack/Images/Blocks/Fabric.png)
 
-![图片](pack://application:,,,/images/Blocks/NeoForge.png)
+![图片](/pack/Images/Blocks/NeoForge.png)
 
 你可以用类似 {DynamicResource ColorBrush5} 的格式使用 PCL 当前的主题颜色，修改末尾的数字编号以改变颜色浓度。
 
