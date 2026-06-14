@@ -234,7 +234,7 @@ git commit -m "docs: 更新 LittleSkin 外置登录教程"
 ::: warning 注意 提交信息应该遵守[技术规范-提交信息规范-简单格式](/ce/developers/guidelines#%E7%AE%80%E5%8D%95%E6%A0%BC%E5%BC%8F)内规定的格式。
 :::
 
-## 十二、推送分支并创建 Pull Request
+## 十一、推送分支并创建 Pull Request
 
 提交完成后，将分支推送到你的 Fork 仓库：
 
@@ -261,7 +261,7 @@ git push origin docs/update-littleskin-guide
 
 提交 Pull Request 后，维护者可能会提出修改建议。根据建议继续修改并提交到同一分支即可，Pull Request 会自动更新。
 
-## 十三、同步上游仓库
+## 十二、同步上游仓库
 
 如果你的 Fork 落后于原仓库，可以同步上游更新。
 
@@ -291,7 +291,7 @@ git push origin main
 
 之后再创建新的工作分支，可以减少冲突。
 
-## 十五、常见问题
+## 十三、常见问题
 
 ### 如何添加图片？
 
@@ -331,7 +331,7 @@ order: 1
 
 可以。只要继续在同一个分支上提交并推送，Pull Request 会自动更新。
 
-## 十六、获取帮助
+## 十四、获取帮助
 
 遇到问题时，可以通过以下方式获取帮助：
 
