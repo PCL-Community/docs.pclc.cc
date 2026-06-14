@@ -336,7 +336,6 @@ order: 1
 遇到问题时，可以通过以下方式获取帮助：
 
 * 在 [GitHub Issues](https://github.com/PCL-Community/docs.pclc.cc/issues) 提问。
-* 查看 [PCL CE 用户文档](../ce/contributing/) 了解用户侧贡献指南。
 * 在 Pull Request 中说明遇到的问题，等待维护者协助。
 
 感谢你为 PCL CE 文档站点做出的贡献！
