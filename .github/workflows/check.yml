@@ -1,0 +1,54 @@
+name: CI Check
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+  push:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ci-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-build:
+    name: Build documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.1.2
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Configure GitHub Packages registry
+        run: |
+          printf "@pcl-community:registry=https://npm.pkg.github.com\n" > .npmrc
+          printf "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}\n" >> .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build documentation
+        run: pnpm docs:build
