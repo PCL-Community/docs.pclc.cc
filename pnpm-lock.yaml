@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@pcl-community/plain-ui-vue-css-ts':
-        specifier: ^1
-        version: 1.0.2(vue@3.5.38)
+        specifier: ^1.1.1
+        version: 1.1.1(vue@3.5.38)
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.0
@@ -240,8 +240,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@pcl-community/plain-ui-vue-css-ts@1.0.2':
-    resolution: {integrity: sha512-KLM4FIL8F2PNJ2GxAT+mceBp0HgM7sKbHu/HhLc4+H6OWpdz/+/p9cjnN1ytfafhgSJIj7o21l33Fsof03CciQ==, tarball: https://npm.pkg.github.com/download/@pcl-community/plain-ui-vue-css-ts/1.0.2/8e8656f87d2814315e9eb14aee38120cf9a3f6e2}
+  '@pcl-community/plain-ui-vue-css-ts@1.1.1':
+    resolution: {integrity: sha512-ZTYh1v348ALmCvWIgY1Fm4lVzLGb3jAA4Sq2tz2dXXLfWs1Phku93Z9in7gJ4DPEYP91YcEkYCnzik2rVYwT7Q==, tarball: https://npm.pkg.github.com/download/@pcl-community/plain-ui-vue-css-ts/1.1.1/34049696ad2671cca1af1d4157ec8cc693ef1771}
     peerDependencies:
       vue: ^3.4.0
 
@@ -1178,7 +1178,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@pcl-community/plain-ui-vue-css-ts@1.0.2(vue@3.5.38)':
+  '@pcl-community/plain-ui-vue-css-ts@1.1.1(vue@3.5.38)':
     dependencies:
       vue: 3.5.38
 

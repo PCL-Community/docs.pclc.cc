@@ -1,5 +1,9 @@
 # 提交帮助 - Intellij Idea
 
+::: danger 💀 过时文档
+该页面内容已被标记为过时，并可能与当前实现不一致。
+:::
+
 > **作者**: Ian-Rin、iammcjack6、龙腾猫跃、XiaoFans
 
 IntelliJ IDEA 是主流的 Java 集成开发环境，适用于商业和开源开发。你可以通过点击下面的按钮来进行下载或访问其官方网站。由 JetBrains 开发的其他 IDE 或任何基于 InteillJ IDEA 的 IDE (如 Android Studio)同样适用于该教程。
@@ -20,24 +24,20 @@ IntelliJ IDEA 是主流的 Java 集成开发环境，适用于商业和开源开
 
 [访问 GitHub 设置](https://github.com/settings/keys)
 
-`设置 Git 用户名` (复制)
+5. 克隆仓库到本地。打开 "Terminal"，输入 `git clone https://github.com/PCL-Community/docs.pclc.cc.git` ，此操作会在本地创建一个名为 "docs.pclc.cc" 的文件夹，并将代码仓库的内容下载到这个文件夹。
 
-`设置 Git 邮箱` (复制)
+6. 使用 IntelliJ IDEA 进行编写。首先，在 "Terminal" 中输入 "cd docs.pclc.cc" 切换到代码仓库目录，然后打开 IntelliJ IDEA，选择 "打开已有的项目"，选择刚刚下载的 "docs.pclc.cc" 文件夹，编写代码并保存更改。
 
-1. 克隆仓库到本地。打开 "Terminal"，输入 git clone https://github.com/PCL-Community/PCL2CEHelp.git ，此操作会在本地创建一个名为 "PCL2Help" 的文件夹，并将代码仓库的内容下载到这个文件夹。
+7. 将更改提交到 GitHub。在 "Terminal" 中，运行以下三个命令，将新更改添加到暂存区，然后提交并推送到远程仓库。
 
-2. 使用 IntelliJ IDEA 进行编写。首先，在 "Terminal" 中输入 "cd PCL2Help" 切换到代码仓库目录，然后打开 IntelliJ IDEA，选择 "打开已有的项目"，选择刚刚下载的 "PCL2Help" 文件夹，编写代码并保存更改。
+```bash
+git add .
+git commit -S -m "提交信息"
+git push
+```
 
-3. 将更改提交到 GitHub。在 "Terminal" 中，运行以下三个命令，将新更改添加到暂存区，然后提交并推送到远程仓库。
+8. 在 GitHub 源代码仓库页面创建新的 Pull Request。点击下方的 "新建 Pull Request" 按钮，填写标题和描述，然后提交。在创建 Pull Request 之前，请确保你的分支与源仓库是同步的。
+   若需同步源仓库和你的分支，打开你的 Fork 仓库页面，点击 "Fetch upstream"，然后点击 "Fetch and merge"。
 
-在 GitHub 源代码仓库页面创建新的 Pull Request。点击下方的 "新建 Pull Request" 按钮，填写标题和描述，然后提交。在创建 Pull Request 之前，请确保你的分支与源仓库是同步的。
+[新建合并请求](https://github.com/PCL-Community/docs.pclc.cc/compare)
 
-若需同步源仓库和你的分支，打开你的 Fork 仓库页面，点击 "Fetch upstream"，然后点击 "Fetch and merge"。
-
-`git add .` (复制)
-
-`git commit -m &lt;提交信息&gt; ` (复制)
-
-`git push` (复制)
-
-[新建合并请求](https://github.com/PCL-Community/PCL2CEHelp/compare)

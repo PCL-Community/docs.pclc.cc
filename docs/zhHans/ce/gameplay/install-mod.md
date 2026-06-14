@@ -1,5 +1,11 @@
 # 安装 Mod
 
+::: warning 🚧 文档尚未完善
+本文档仍在持续完善中，部分内容可能不完整、未验证或暂未覆盖最新实现。
+
+如果你有兴趣，欢迎提交 Pull Request 来完善本文档。
+:::
+
 > **作者**: Big_Cake、Logic_530、WTP016、RawDiamondMC、虾米逃生计划
 
 Mod 加载器是为 Minecraft 安装 Mod 的必要前置条件，要想安装 Mod，必须先安装 Mod 加载器。目前主流的 Mod 加载器有 Forge、NeoForge、Fabric 和 Quilt 等，而它们不能同时被安装在同一个版本中。

@@ -1,5 +1,9 @@
 # 提交帮助
 
+::: danger 💀 过时文档
+该页面内容已被标记为过时，并可能与当前实现不一致。
+:::
+
 > **作者**: 龙腾猫跃、Not_Killer_233、XiaoFans
 
 PCL 帮助库欢迎大家参与编辑！你可以参与完善帮助库，帮助更多人了解 PCL 与 Minecraft！
@@ -13,7 +17,7 @@ Fork 完成后，使用以下介绍的任意软件提交帮助。下方条目为
 
 > **提示**: GitHub 目前在国内的访问不太通畅。如果遇到网络问题，请自行使用科学上网工具，然后为 Git 设置代理。
 
-[GitHub 存储库](https://github.com/PCL-Community/PCL2CEHelp)
+[GitHub 存储库](https://github.com/PCL-Community/docs.pclc.cc)
 
 [如何为 Git 设置代理](https://www.jianshu.com/p/290152303598)
 
@@ -25,3 +29,4 @@ Fork 完成后，使用以下介绍的任意软件提交帮助。下方条目为
 非常感谢你的参与！
 
 [打开 PCL 常见问题文档](https://shimo.im/docs/qKPttVvXKqPD8YDC)
+

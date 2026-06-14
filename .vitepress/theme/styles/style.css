@@ -120,3 +120,12 @@
     --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
     --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
 }
+
+:root {
+    --vp-layout-max-width: 100%;
+}
+
+.content-container {
+    margin: 0 !important;
+    max-width: 100% !important;
+}

@@ -2,17 +2,13 @@
 order: 0
 ---
 
-# 开始这里 (Start Here)
+# 从这里开始
 
 新用户第一站，提供全局导航。
-
----
 
 ## 欢迎
 
 这是 PCL 社区版帮助文档的入口。根据你的需求，选择合适的路径：
-
----
 
 ## 快速入口
 
@@ -49,8 +45,6 @@ order: 0
 - [VSCode 工作流](../contributing/vscode-workflow.md)
 - [提交帮助](../contributing/submit-help.md)
 
----
-
 ## 文档结构
 
 ```
@@ -64,6 +58,3 @@ order: 0
 └── contributing/     # 贡献指南
 ```
 
----
-
-[返回首页](../../)

@@ -29,7 +29,6 @@ const commonSidebarConfig: VitePressSidebarOptions = {
     excludeFilesByFrontmatterFieldName: "exclude",
     sortMenusByFrontmatterOrder: true,
     frontmatterOrderDefaultValue: 999,
-    debugPrint: true,
 };
 
 export function generateI18nSidebarConfig() {

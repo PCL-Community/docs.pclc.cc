@@ -1,9 +1,9 @@
 import { defineConfig, UserConfig } from "vitepress";
 import { withSidebar } from "vitepress-sidebar";
 import { withI18n } from "vitepress-i18n";
-import { VitePressI18nOptions } from "vitepress-i18n/types";
-import { generateI18nSidebarConfig } from "./utils/i10nSidebar";
+import type { VitePressI18nOptions } from "vitepress-i18n/types";
 import tailwindcss from "@tailwindcss/vite";
+import { generateI18nSidebarConfig } from "./utils/i10nSidebar";
 
 const vitepressConfig: UserConfig = {
     srcDir: "docs",
@@ -21,7 +21,9 @@ const vitepressConfig: UserConfig = {
     },
 
     vite: {
-        plugins: [tailwindcss()],
+        plugins: [
+            tailwindcss(),
+        ],
     },
 
     themeConfig: {

@@ -1,12 +1,12 @@
 # XAML 格式
 
+::: info 提示
+由于我们将本文档从内置 XAML 模式迁移到网页，部分组件展示效果可能和实际不同，请以启动器内为准。
+:::
+
 > **作者**: 龙腾猫跃、XiaoFans、林小槐、TCJ
 
 本篇简单介绍了在 PCL 中使用 XAML 进行自定义页面的相关语法。由于内容繁多，建议下载本篇代码参考学习。
-
-[下载本篇的代码](https://testingcf.jsdelivr.net/gh/LTCatt/PCL2Help@latest/个性化/XAML%20格式.xaml)
-
----
 
 ## 纯文本
 
@@ -19,29 +19,22 @@
 <CodeExample title="纯文本示例">
 
 <CodeDisplay>
-  <div class="flex flex-col gap-2 p-5 bg-gray-100 rounded-lg">
-    <p class="m-0 text-sm">这是一段普通文本。</p>
-    <p class="m-0 text-xs">这段文字使用了 FontSize="11" 属性。</p>
-    <p class="m-0 text-amber-700">这段文字使用了 Foreground 属性改变颜色。</p>
-  </div>
+  <p class="m-0 text-sm">这是一段普通文本。</p>
+  <p class="m-0 text-xs">这段文字使用了 FontSize="11" 属性。</p>
+  <p class="m-0 text-amber-700">这段文字使用了 Foreground 属性改变颜色。</p>
 </CodeDisplay>
 
 <CodeContent>
 
 ```xml
-<TextBlock Margin="0,0,0,4"
-    Text="这是一段普通文本。" />
-<TextBlock Margin="0,0,0,4" FontSize="11"
-    Text="这段文字使用了 FontSize=&quot;11&quot; 属性。" />
-<TextBlock Margin="20,5,20,0" Foreground="#8C7721"
-    Text="这段文字使用了 Foreground 属性改变颜色。" />
+<TextBlock Margin="0,0,0,4" Text="这是一段普通文本。" />
+<TextBlock Margin="0,0,0,4" FontSize="11" Text="这段文字使用了 FontSize=&quot;11&quot; 属性。" />
+<TextBlock Margin="20,5,20,0" Foreground="#8C7721" Text="这段文字使用了 Foreground 属性改变颜色。" />
 ```
 
 </CodeContent>
 
 </CodeExample>
-
----
 
 ## 卡片与提示条
 
@@ -58,11 +51,9 @@
 <CodeContent>
 
 ```xml
-<local:MyHint Text="local:MyHint 代表提示条。" />
-<local:MyHint Theme="Blue"
-    Text="将提示条的 Theme 属性改为 Blue、Yellow 或 Red 即可修改配色。" />
-<local:MyHint Theme="Red"
-    Text="这是红色主题的提示条。" />
+<local:MyHint Theme="Blue" Text="local:MyHint 代表提示条。" />
+<local:MyHint Theme="Yellow" Text="将提示条的 Theme 属性改为 Blue、Yellow 或 Red 即可修改配色。" />
+<local:MyHint Theme="Red" Text="这是红色主题的提示条。" />
 ```
 
 </CodeContent>
@@ -75,7 +66,7 @@
 <CodeExample title="可折叠卡片">
 
 <CodeDisplay>
-  <PCard Title="可折叠卡片标题" CanSwap="True" IsSwapped="False">
+  <PCard Title="可折叠卡片标题" :CanSwap="true">
     <p class="m-0">这是卡片的内容区域。</p>
   </PCard>
 </CodeDisplay>
@@ -94,8 +85,6 @@
 
 </CodeExample>
 
----
-
 ## 长宽属性与图片
 
 任意项目都可以添加 Width 与 Height 属性来控制宽高。HorizontalAlignment 属性可以控制对齐：Center 代表居中，Right 代表居右。
@@ -112,10 +101,8 @@
 <CodeContent>
 
 ```xml
-<TextBlock Width="320" HorizontalAlignment="Right"
-    Text="这段文本宽度为 320，右对齐" />
-<TextBlock Width="200" HorizontalAlignment="Center"
-    Text="这段文本宽度为 200，居中对齐" />
+<TextBlock Width="320" HorizontalAlignment="Right" Text="这段文本宽度为 320，右对齐" />
+<TextBlock Width="200" HorizontalAlignment="Center" Text="这段文本宽度为 200，居中对齐" />
 ```
 
 </CodeContent>
@@ -127,7 +114,7 @@
 <CodeExample title="图片展示">
 
 <CodeDisplay>
-  <div class="text-center p-4">
+  <div class="flex items-center justify-center flex-col">
     <img src="https://www.baidu.com/img/flexible/logo/pc/result.png" height="50" alt="百度 Logo" />
     <p class="mt-2 text-xs text-gray-500">Height="50" 限制图片高度</p>
   </div>
@@ -147,8 +134,6 @@
 如果有多个网址，也可以通过设置 `FallbackSource` 属性来设置备用地址。  
 当从网址 1 获取图片失败后，会自动从网址 2 获取图片。
 
----
-
 ## 按钮
 
 添加 `local:MyButton` 即可新建一个按钮。你需要限定它的尺寸与位置，并通过 Padding 属性进一步控制它的内边距。
@@ -158,17 +143,15 @@
 <CodeDisplay>
   <div class="flex flex-col gap-3 items-start">
     <PButton>这是一个按钮！一个按钮！</PButton>
-    <PButton ColorState="Highlight" ToolTip="……就能看到这句话！">把鼠标停在这里别动……</PButton>
+    <PButton ColorState="Highlight" title="……就能看到这句话！">把鼠标停在这里别动……</PButton>
   </div>
 </CodeDisplay>
 
 <CodeContent>
 
 ```xml
-<local:MyButton Height="35" HorizontalAlignment="Left" Padding="25,0,25,0"
-    Text="这是一个按钮！一个按钮！" />
-<local:MyButton Width="250" Height="35" ColorType="Highlight"
-    Text="把鼠标停在这里别动……" ToolTip="……就能看到这句话！"  />
+<local:MyButton Height="35" HorizontalAlignment="Left" Padding="25,0,25,0" Text="这是一个按钮！一个按钮！" />
+<local:MyButton Width="250" Height="35" ColorType="Highlight" Text="把鼠标停在这里别动……" ToolTip="……就能看到这句话！"  />
 ```
 
 </CodeContent>
@@ -190,15 +173,12 @@
 <CodeContent>
 
 ```xml
-<local:MyTextButton HorizontalAlignment="Center"
-    Text="一个精简版的文本按钮" />
+<local:MyTextButton HorizontalAlignment="Center" Text="一个精简版的文本按钮" />
 ```
 
 </CodeContent>
 
 </CodeExample>
-
----
 
 ## 自定义事件
 
@@ -252,8 +232,6 @@
 
 `local:MyTextButton` 同样可以设置 EventType 与 EventData 让它具有特定功能。
 
----
-
 ## 横向布局
 
 你需要使用 `StackPanel` 在一行里塞下多个按钮。你可以仅在这个教学卡片的基础上稍作调整，来实现自己的按钮布局。
@@ -305,8 +283,6 @@
 
 </CodeExample>
 
----
-
 ## 列表项
 
 你也可以使用列表项 `local:MyListItem` 来替代按钮，其使用方式与按钮类似。
@@ -342,8 +318,6 @@
 Logo 属性为列表项的图标，指定的可以是链接也可以是文件路径；Title 是大标题，Info 是可选的小标题（详细信息）；Type 如果省略，该列表项则单纯只展示信息，仅当 Type 为 Clickable 才能触发点击效果。
 
 EventType、EventData 与按钮几乎一致。唯一不同的是，列表项联网加载帮助文件时，必须手动设置 Title、Info、Type、Logo 属性。
-
----
 
 ## 内置图片
 
@@ -403,8 +377,6 @@ PCL 内置了一些 Minecraft 方块与物品图片，可以直接使用。
 
 使用时，将上方对应行的 Source 复制到 MyListItem 的 Logo 属性处即可。
 
----
-
 ## 主题色
 
 你可以用类似 `{DynamicResource ColorBrush5}` 的格式使用 PCL 当前的主题颜色，修改末尾的数字编号以改变颜色浓度。
@@ -412,19 +384,15 @@ PCL 内置了一些 Minecraft 方块与物品图片，可以直接使用。
 <CodeExample title="主题色浓度">
 
 <CodeDisplay>
-  <div class="flex flex-col gap-2">
-    <div class="flex gap-2 justify-center">
-      <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded">浓度 1</span>
-      <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded">浓度 2</span>
-      <span class="px-2 py-1 bg-blue-200 text-blue-800 rounded">浓度 3</span>
-      <span class="px-2 py-1 bg-blue-300 text-white rounded">浓度 4</span>
-    </div>
-    <div class="flex gap-2 justify-center">
-      <span class="px-2 py-1 bg-blue-400 text-white rounded">浓度 5</span>
-      <span class="px-2 py-1 bg-blue-500 text-white rounded">浓度 6</span>
-      <span class="px-2 py-1 bg-blue-600 text-white rounded">浓度 7</span>
-      <span class="px-2 py-1 bg-blue-700 text-white rounded">浓度 8</span>
-    </div>
+  <div class="grid grid-cols-4 grid-rows-2 gap-y-2 w-86!">
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-1)] border border-[var(--color-brush-4)] rounded">浓度 1</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-2)] border border-[var(--color-brush-4)] rounded">浓度 2</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-3)] border border-[var(--color-brush-4)] rounded">浓度 3</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-4)] border border-[var(--color-brush-4)] rounded">浓度 4</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-5)] border border-[var(--color-brush-4)] rounded">浓度 5</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-6)] border border-[var(--color-brush-4)] rounded">浓度 6</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-7)] border border-[var(--color-brush-4)] rounded">浓度 7</span>
+    <span class="w-20 text-center px-2 py-1 text-[var(--color-brush-8)] border border-[var(--color-brush-4)] rounded">浓度 8</span>
   </div>
 </CodeDisplay>
 
@@ -446,8 +414,6 @@ PCL 内置了一些 Minecraft 方块与物品图片，可以直接使用。
 </CodeExample>
 
 除了字体颜色，你也可以将主题色用于背景色、边框颜色等颜色参数。
-
----
 
 ## 进阶：Grid 布局
 
@@ -486,8 +452,6 @@ PCL 内置了一些 Minecraft 方块与物品图片，可以直接使用。
 </CodeContent>
 
 </CodeExample>
-
----
 
 ## 进阶：图标按钮
 
@@ -565,16 +529,12 @@ Logo 属性的内容是 SVG Path 的值，你需要使用 SVG 编辑器或者从
 
 如果只想显示一个图标，不想让它是能按的按钮，可以使用 WPF 自带的 Path 等绘图控件，感兴趣的话可以自行搜索。想偷懒也可以把 MyIconButton 的 `IsHitTestVisible` 属性改为 False……
 
----
-
 ## 进阶：联网自定义主页
 
 如果你在尝试制作联网更新的自定义主页，可以查看下方的 GitHub 讨论页。  
 你可以根据其中的介绍为主页添加版本号检查以节省流量，也可以通过检查 Referer 和 User Agent 来确定对方的 PCL 版本。
 
 [打开 GitHub 讨论页](https://github.com/Meloong-Git/PCL/discussions/2528)
-
----
 
 ## 属性参考
 
