@@ -20,36 +20,36 @@ order: 3
 
 包括局部/全局变量、参数、属性、事件等原生支持赋值类符号的元素，若未说明静态则为非静态。
 
-| 类别 | 命名规范 | 示例 |
-| --- | --- | --- |
-| 局部变量, 方法参数, 构造器参数 | camelCase | `name` `runningThread` `resourceMap` |
-| 私有属性, 私有只读全局变量 | _PascalCase | `_Items` `_PageMap` |
-| 私有全局变量, 静态私有全局变量 | _camelCase | `_parameters` `_runningThreads` `_hasDisposed` |
-| 主构造器属性 (record), 其它 | PascalCase | `Name` `CurrentThread` `ActivePageCollection` |
+| 类别                  | 命名规范        | 示例                                             |
+|---------------------|-------------|------------------------------------------------|
+| 局部变量, 方法参数, 构造器参数   | camelCase   | `name` `runningThread` `resourceMap`           |
+| 私有属性, 私有只读全局变量      | _PascalCase | `_Items` `_PageMap`                            |
+| 私有全局变量, 静态私有全局变量    | _camelCase  | `_parameters` `_runningThreads` `_hasDisposed` |
+| 主构造器属性 (record), 其它 | PascalCase  | `Name` `CurrentThread` `ActivePageCollection`  |
 
 ### 方法
 
 面向对象中对函数类型成员的称呼，由于托管式面向对象语言通常都没有真正的 "顶层" 概念，也就几乎不存在不是方法的函数，所以习惯统一称为 "方法"。
 
-| 类别 | 命名规范 | 示例 |
-| --- | --- | --- |
-| 非私有方法, 静态非私有方法, 局部方法 | PascalCase | `Start()` `ComposeMessage()` `WriteLogItem()` |
-| 私有方法 | _PascalCase | `_StartInternal()` `_RaiseChanged()` |
+| 类别                   | 命名规范        | 示例                                            |
+|----------------------|-------------|-----------------------------------------------|
+| 非私有方法, 静态非私有方法, 局部方法 | PascalCase  | `Start()` `ComposeMessage()` `WriteLogItem()` |
+| 私有方法                 | _PascalCase | `_StartInternal()` `_RaiseChanged()`          |
 
 ### 类型
 
 包含但不限于类、接口、枚举、记录、委托等各种可以作为类型的元素。
 
-| 类别 | 命名规范 | 示例 |
-| --- | --- | --- |
+| 类别 | 命名规范        | 示例                                          |
+|----|-------------|---------------------------------------------|
 | 接口 | IPascalCase | `ICollection` `ILifecycleService` `IConfig` |
-| 其它 | PascalCase | 略 |
+| 其它 | PascalCase  | 略                                           |
 
 ### 特殊规范
 
-| 类别 | 规范 |
-| --- | --- |
-| 事件 | 不应以 `On` 开头 |
+| 类别                                                           | 规范            |
+|--------------------------------------------------------------|---------------|
+| 事件                                                           | 不应以 `On` 开头   |
 | `AutoResetEvent` `ManualResetEvent` `ManualResetEventSlim` 等 | 应以 `Event` 结尾 |
 
 ## 项目开发规范
@@ -84,20 +84,18 @@ order: 3
 
 #### 外部库调用 (P/Invoke)
 
-.NET 7 引入了 [LibraryImportAttribute](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation) 特性简化并在编译期预生成静态的封送代码，同时使得 P/Invoke 可以被 inline 优化。这在一定程度上提升了 P/Invoke 声明的性能，因此要求代码中 P/Invoke 调用统一使用 `LibraryImport` 取代 `DllImport` 用法，并注意利用静态封送特性（如本应传入指针导出数据时可以直接使用 Span<T> 来安全处理类型并极大提升性能，更多特性请参考官方文档）。
+.NET 7 引入了 [LibraryImportAttribute](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation) 特性简化并在编译期预生成静态的封送代码，同时使得 P/Invoke 可以被 inline 优化。这在一定程度上提升了 P/Invoke 声明的性能，因此要求代码中 P/Invoke 调用统一使用 `LibraryImport` 取代 `DllImport` 用法，并注意利用静态封送特性（如本应传入指针导出数据时可以直接使用 `Span<T>` 来安全处理类型并极大提升性能，更多特性请参考官方文档）。
 
 ::: note
 `LibraryImport` 要求使用 `partial` 关键字换掉 `DllImport` 要求的 `extern` 关键字。
 :::
 
-::: important
-官方规范的可见性修饰由 `private` 放宽到了 `internal`，但为了提升可维护性，仍不建议将 P/Invoke 声明暴露到本类范围之外，因此使用 `LibraryImport` 声明的方法仍然推荐使用 `private` 修饰。
+::: important 官方规范的可见性修饰由 `private` 放宽到了 `internal`，但为了提升可维护性，仍不建议将 P/Invoke 声明暴露到本类范围之外，因此使用 `LibraryImport` 声明的方法仍然推荐使用 `private` 修饰。
 :::
 
 ## 提交信息规范
 
-::: important
-此处部分内容来自仓库原 CONTRIBUTING.md 文件，感谢原作者 @WorldHim @wyc-26 @3gf8jv4dv 的贡献。
+::: important 此处部分内容来自仓库原 CONTRIBUTING.md 文件，感谢原作者 @WorldHim @wyc-26 @3gf8jv4dv 的贡献。
 :::
 
 ### 简单格式
@@ -178,10 +176,8 @@ revert: digest (hash)
 
 **因换行符或编码造成大量无用更改的 PR 可能会被要求重新提交或直接关闭，因此请务必注意。**
 
-::: tip Git 换行符处理
-Git 可以自动处理提交内容的换行符，因此不需要手动管理本地文件的换行符，详情参考 [GitHub 文档页面](https://docs.github.com/en/get-started/git-basics/configuring-git-to-handle-line-endings)。
+::: tip Git 换行符处理 Git 可以自动处理提交内容的换行符，因此不需要手动管理本地文件的换行符，详情参考 [GitHub 文档页面](https://docs.github.com/en/get-started/git-basics/configuring-git-to-handle-line-endings)。
 :::
 
-::: tip Rider 编码设置
-Rider 可在设置中指定默认使用标准 UTF-8 编码，但微软的东西比如 Visual Studio 可能会时不时偷偷加个 BOM。因此提交时请务必注意文件首行是否存在更改，若存在，大概率是多了个 BOM 符号。
+::: tip Rider 编码设置 Rider 可在设置中指定默认使用标准 UTF-8 编码，但微软的东西比如 Visual Studio 可能会时不时偷偷加个 BOM。因此提交时请务必注意文件首行是否存在更改，若存在，大概率是多了个 BOM 符号。
 :::

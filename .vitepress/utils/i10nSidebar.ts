@@ -1,19 +1,7 @@
-import { VitePressSidebarOptions } from "vitepress-sidebar/types";
+import {VitePressSidebarOptions} from "vitepress-sidebar/types";
 
 const rootLocale = "zhHans";
 const supportedLocales = [rootLocale, "en"];
-
-// 文件夹排序顺序，匹配 .temp/Doc/Content 的编号顺序
-const folderSortOrder = [
-    "getting-started", // 00-开始这里
-    "new-user", // 01-新手上路
-    "gameplay", // 02-游戏玩法
-    "advanced", // 03-进阶功能
-    "troubleshooting", // 04-故障排除
-    "customization", // 05-个性化
-    "external-resources", // 06-外部资源
-    "contributing", // 07-参与贡献
-];
 
 const commonSidebarConfig: VitePressSidebarOptions = {
     documentRootPath: "/docs",
@@ -36,7 +24,7 @@ export function generateI18nSidebarConfig() {
         ...supportedLocales.map((lang) => {
             return {
                 ...commonSidebarConfig,
-                ...(rootLocale === lang ? {} : { basePath: `/${lang}/` }), // If using `rewrites` option
+                ...(rootLocale === lang ? {} : {basePath: `/${lang}/`}), // If using `rewrites` option
                 documentRootPath: `/docs/${lang}`,
                 resolvePath: rootLocale === lang ? "/" : `/${lang}/`,
             };

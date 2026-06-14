@@ -12,12 +12,12 @@ order: 5
 
 | API | 描述 | 命名空间 |
 |-----|------|----------|
-| [生命周期管理](./lifecycle.md) | 程序执行流程控制机制 | `PCL.Core.App` |
-| [事件总线](./eventbus.md) | 发布/订阅式事件总线 | `PCL.Core.App.EventBus` |
-| [配置系统](./config.md) | 应用配置管理 | `PCL.Core.App.Config` |
-| [任务系统](./tasks.md) | 响应式后台任务管理 | `PCL.Core.App.Tasks` |
-| [RPC API](./rpc.md) | 命名管道通信接口 | - |
-| [身份认证](./identity.md) | OAuth/OpenID 认证组件 | - |
+| [生命周期管理](lifecycle.md) | 程序执行流程控制机制 | `PCL.Core.App` |
+| [事件总线](eventbus.md) | 发布/订阅式事件总线 | `PCL.Core.App.EventBus` |
+| [配置系统](config.md) | 应用配置管理 | `PCL.Core.App.Config` |
+| [任务系统](tasks.md) | 响应式后台任务管理 | `PCL.Core.App.Tasks` |
+| [RPC API](rpc.md) | 命名管道通信接口 | - |
+| [身份认证](identity.md) | OAuth/OpenID 认证组件 | - |
 
 ## 许可证
 
