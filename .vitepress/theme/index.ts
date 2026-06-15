@@ -1,7 +1,7 @@
 // https://vitepress.dev/guide/custom-theme
-import { h, onMounted, watch, nextTick } from "vue";
-import { useData, useRoute } from "vitepress";
+import { nextTick, onMounted, watch } from "vue";
 import type { Theme } from "vitepress";
+import { useData, useRoute } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import mediumZoom from "medium-zoom";
 
@@ -15,6 +15,7 @@ import CodeDisplay from "./components/CodeDisplay.vue";
 
 // 导入额外组件
 import CurrentTime from "./components/CurrentTime.vue";
+import MermaidChart from "./components/MermaidChart.vue";
 
 // 导入 Plain UI Vue 组件
 import PlainUI from "@pcl-community/plain-ui-vue-css-ts";
@@ -37,6 +38,7 @@ export default {
 
         // 注册额外组件
         app.component("CurrentTime", CurrentTime);
+        app.component("MermaidChart", MermaidChart);
 
         // 注册 Plain UI 组件
         app.use(PlainUI);
@@ -75,4 +77,3 @@ export default {
         });
     },
 } satisfies Theme;
-

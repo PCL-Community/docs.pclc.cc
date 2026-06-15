@@ -20,6 +20,25 @@ const vitepressConfig: UserConfig = {
         "zhHans/:rest*": ":rest*",
     },
 
+    markdown: {
+        config(md) {
+            const defaultFence = md.renderer.rules.fence;
+            md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+                const token = tokens[idx];
+                const language = token.info.trim().split(/\s+/)[0];
+
+                if (language === "mermaid" || language === "mmd") {
+                    const code = encodeURIComponent(token.content);
+                    return `<ClientOnly><MermaidChart code="${code}" /></ClientOnly>`;
+                }
+
+                return defaultFence
+                    ? defaultFence(tokens, idx, options, env, self)
+                    : self.renderToken(tokens, idx, options);
+            };
+        },
+    },
+
     vite: {
         plugins: [
             tailwindcss(),
@@ -32,7 +51,7 @@ const vitepressConfig: UserConfig = {
         socialLinks: [{ icon: "github", link: "https://github.com/PCL-Community" }],
 
         footer: {
-            message: "Released under the MIT License.",
+            message: "Released under the Creative Commons Attribution-ShareAlike 4.0 International Public License (CC BY-SA 4.0).",
             copyright: 'Copyright © <a href="https://github.com/PCL-Community">PCL Community</a>',
         },
         editLink: {
@@ -83,5 +102,9 @@ const i18nConfig: VitePressI18nOptions = {
     },
 };
 
-// 注意：withSidebar 必须包裹 withI18n，顺序是 withSidebar(withI18n(config, i18n), sidebar)
-export default defineConfig(withSidebar(withI18n(vitepressConfig, i18nConfig), sidebarConfig));
+const combinedConfig = withSidebar(
+    withI18n(vitepressConfig, i18nConfig),
+    sidebarConfig
+);
+
+export default defineConfig(combinedConfig);
