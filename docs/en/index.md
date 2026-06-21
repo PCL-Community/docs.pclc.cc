@@ -30,4 +30,3 @@ features:
     link: ./ce/launcher/contribute-to-help-docs
     linkText: Participate in contribute
 ---
-

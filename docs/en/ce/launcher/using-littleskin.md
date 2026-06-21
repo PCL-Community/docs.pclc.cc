@@ -1,1 +1,0 @@
-# Setup LittleSkin Login <Badge type="tip" text="Requires Genuine Minecraft" />

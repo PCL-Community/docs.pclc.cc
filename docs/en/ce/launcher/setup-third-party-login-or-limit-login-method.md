@@ -1,1 +1,0 @@
-# Setup Third Party Login Or Limit Login Method <Badge type="tip" text="Requires Genuine Minecraft" />
