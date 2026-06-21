@@ -2,9 +2,10 @@
 order: 7
 ---
 
-# 开发者指南
+# Developer Guide
 
-欢迎来到 PCL CE 开发者指南页面！
+Welcome to the PCL CE Developer Guide page!
 
-我们会在这里写一些社区版启动器对外开放的 API 用法，或是某些部分的开发说明。
-可以使用侧边目录快速找到你想要的内容。
+Here we will cover the API usage of PCL CE, as well as development notes for certain sections.
+
+Use the sidebar to quickly find the content you need.

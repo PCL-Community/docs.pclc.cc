@@ -2,14 +2,14 @@
 order: 4
 ---
 
-# Tasks 响应式任务系统
+# Tasks Reactive Task System
 
-`Tasks` 是 PCL CE 核心库中基于响应式模型的任务系统，位于 `PCL.Core.App.Tasks` 命名空间，用于管理可观察的后台任务生命周期。
+`Tasks` is a task system based on a reactive model in the PCL CE core library. It is located in the `PCL.Core.App.Tasks` namespace and is used to manage the lifecycle of observable background tasks.
 
-任务通过 `TaskCenter` 注册。注册后，系统会为任务创建可绑定到 UI 的 `TaskModel` 实例，并自动同步任务状态、进度、子任务集合和控制命令。
+Tasks are registered through `TaskCenter`. After registration, the system creates a `TaskModel` instance that can be bound to the UI, and automatically synchronizes task state, progress, child task collections, and control commands.
 
-::: warning API 状态
-此 API 仍在设计开发中，后续版本可能存在变动，请以实际行为为准。
+::: warning API Status
+This API is still under design and development. It may change in future versions. Please refer to the actual behavior.
 :::
 
 ```mermaid
@@ -23,33 +23,33 @@ flowchart LR
     T -.->|optional| G[ITaskGroup]
 ```
 
-## 概览
+## Overview
 
-`Tasks` 系统以 `ITask` 为基本任务单元，以 `TaskModel` 作为 UI 可观察模型，以 `TaskCenter` 作为任务注册与管理入口。
+The `Tasks` system uses `ITask` as the basic task unit, `TaskModel` as the UI-observable model, and `TaskCenter` as the task registration and management entry point.
 
-| 概念    | 说明                          |
-|-------|-----------------------------|
-| 任务    | 实现 `ITask` 的后台执行单元          |
-| 任务状态  | 由 `TaskState` 表示的任务运行状态     |
-| 任务模型  | 由 `TaskCenter` 创建的 UI 可观察模型 |
-| 任务中心  | 负责注册任务、启动任务和维护任务集合          |
-| 可取消任务 | 实现 `ITaskCancelable` 的任务    |
-| 可暂停任务 | 实现 `ITaskPausable` 的任务      |
-| 进度任务  | 实现 `ITaskProgressive` 的任务   |
-| 任务组   | 实现 `ITaskGroup` 的复合任务       |
+| Concept          | Description                                                                            |
+|------------------|----------------------------------------------------------------------------------------|
+| Task             | A background execution unit that implements `ITask`                                    |
+| Task state       | The task runtime state represented by `TaskState`                                      |
+| Task model       | A UI-observable model created by `TaskCenter`                                          |
+| Task center      | Responsible for registering tasks, starting tasks, and maintaining the task collection |
+| Cancelable task  | A task that implements `ITaskCancelable`                                               |
+| Pausable task    | A task that implements `ITaskPausable`                                                 |
+| Progressive task | A task that implements `ITaskProgressive`                                              |
+| Task group       | A composite task that implements `ITaskGroup`                                          |
 
-任务系统的典型数据流为：
+The typical data flow of the task system is:
 
-1. 调用方创建一个实现 `ITask` 的任务实例。
-2. 调用方通过 `TaskCenter.Register` 注册任务。
-3. `TaskCenter` 创建对应的 `TaskModel`。
-4. `TaskCenter` 订阅任务状态、进度和子任务事件。
-5. UI 绑定 `TaskCenter.Tasks` 或对应 `TaskModel`。
-6. 任务执行期间，状态变化会同步反映到 UI 模型中。
+1. The caller creates a task instance that implements `ITask`.
+2. The caller registers the task through `TaskCenter.Register`.
+3. `TaskCenter` creates the corresponding `TaskModel`.
+4. `TaskCenter` subscribes to task state, progress, and child task events.
+5. The UI binds to `TaskCenter.Tasks` or the corresponding `TaskModel`.
+6. While the task is running, state changes are synchronized to the UI model.
 
 ## `ITask`
 
-`ITask` 是响应式任务的核心接口。所有可注册到任务系统中的任务都必须实现该接口。
+`ITask` is the core interface for reactive tasks. All tasks that can be registered into the task system must implement this interface.
 
 ```cs
 public delegate void TaskStateEvent(TaskState state, string message);
@@ -64,42 +64,42 @@ public interface ITask
 }
 ```
 
-### 成员
+### Members
 
-| 成员             | 类型                     | 说明       |
-|----------------|------------------------|----------|
-| `Title`        | `string`               | 任务标题     |
-| `ExecuteAsync` | `Task`                 | 执行任务主体逻辑 |
-| `StateChanged` | `event TaskStateEvent` | 任务状态变更事件 |
+| Member         | Type                   | Description                  |
+|----------------|------------------------|------------------------------|
+| `Title`        | `string`               | Task title                   |
+| `ExecuteAsync` | `Task`                 | Executes the main task logic |
+| `StateChanged` | `event TaskStateEvent` | Task state change event      |
 
-### 行为约定
+### Behavior Contract
 
-`ExecuteAsync` 用于执行任务逻辑。任务实现者应在执行过程中通过 `StateChanged` 报告状态变化。
+`ExecuteAsync` is used to execute task logic. Task implementations should report state changes through `StateChanged` during execution.
 
-`TaskCenter` 会在注册任务时自动订阅 `StateChanged`，并将事件同步到对应的 `TaskModel.State` 与 `TaskModel.StateMessage`。
+`TaskCenter` automatically subscribes to `StateChanged` when a task is registered, and synchronizes the event to the corresponding `TaskModel.State` and `TaskModel.StateMessage`.
 
-示例：
+Example:
 
 ```cs
-StateChanged?.Invoke(TaskState.Running, "开始执行");
-StateChanged?.Invoke(TaskState.Success, "执行完成");
+StateChanged?.Invoke(TaskState.Running, "Start execution");
+StateChanged?.Invoke(TaskState.Success, "Execution completed");
 ```
 
 ## `TaskState`
 
-`TaskState` 表示任务当前状态。
+`TaskState` represents the current state of a task.
 
-| 值          | 说明   |
-|------------|------|
-| `Waiting`  | 等待执行 |
-| `Running`  | 正在执行 |
-| `Success`  | 执行成功 |
-| `Canceled` | 已取消  |
-| `Failed`   | 执行失败 |
+| Value      | Description            |
+|------------|------------------------|
+| `Waiting`  | Waiting to run         |
+| `Running`  | Running                |
+| `Success`  | Completed successfully |
+| `Canceled` | Canceled               |
+| `Failed`   | Failed                 |
 
-通常情况下，任务初始状态为 `Waiting`。开始执行后进入 `Running`，执行结束后进入 `Success`、`Canceled` 或 `Failed`。
+In general, the initial state of a task is `Waiting`. After execution starts, it enters `Running`; after execution ends, it enters `Success`, `Canceled`, or `Failed`.
 
-`TaskCenter.RemoveFinished()` 会将状态大于 `Running` 的任务视为已完成任务，即：
+`TaskCenter.RemoveFinished()` treats tasks whose state is greater than `Running` as completed tasks, namely:
 
 * `Success`
 * `Canceled`
@@ -107,7 +107,7 @@ StateChanged?.Invoke(TaskState.Success, "执行完成");
 
 ## `ITaskCancelable`
 
-`ITaskCancelable` 表示支持取消操作的任务。
+`ITaskCancelable` represents a task that supports cancellation.
 
 ```cs
 public interface ITaskCancelable
@@ -116,19 +116,19 @@ public interface ITaskCancelable
 }
 ```
 
-实现该接口后，`TaskModel.Cancel` 命令将处于可用状态。
+After this interface is implemented, the `TaskModel.Cancel` command becomes available.
 
-### 成员
+### Members
 
-| 成员         | 说明     |
-|------------|--------|
-| `Cancel()` | 请求取消任务 |
+| Member     | Description                |
+|------------|----------------------------|
+| `Cancel()` | Requests task cancellation |
 
-`Cancel()` 的具体取消逻辑由任务实现方决定。通常可通过 `CancellationTokenSource` 触发取消，并在 `ExecuteAsync` 中检查取消状态。
+The specific cancellation logic of `Cancel()` is decided by the task implementation. Usually, cancellation can be triggered through `CancellationTokenSource`, and the cancellation state can be checked in `ExecuteAsync`.
 
 ## `ITaskPausable`
 
-`ITaskPausable` 表示支持暂停操作的任务。
+`ITaskPausable` represents a task that supports pausing.
 
 ```cs
 public interface ITaskPausable
@@ -137,19 +137,19 @@ public interface ITaskPausable
 }
 ```
 
-实现该接口后，`TaskModel.Pause` 命令将处于可用状态。
+After this interface is implemented, the `TaskModel.Pause` command becomes available.
 
-### 成员
+### Members
 
-| 成员        | 说明     |
-|-----------|--------|
-| `Pause()` | 请求暂停任务 |
+| Member    | Description           |
+|-----------|-----------------------|
+| `Pause()` | Requests task pausing |
 
-`Pause()` 只定义暂停入口，不规定暂停后的状态流转、恢复方式或内部实现。具体行为由任务实现方决定。
+`Pause()` only defines the entry point for pausing. It does not specify the state transitions after pausing, the resume method, or the internal implementation. The specific behavior is decided by the task implementation.
 
 ## `ITaskProgressive`
 
-`ITaskProgressive` 表示支持进度报告的任务。
+`ITaskProgressive` represents a task that supports progress reporting.
 
 ```cs
 public delegate void TaskProgressEvent(double progress);
@@ -160,22 +160,22 @@ public interface ITaskProgressive
 }
 ```
 
-### 成员
+### Members
 
-| 成员                | 类型                        | 说明       |
-|-------------------|---------------------------|----------|
-| `ProgressChanged` | `event TaskProgressEvent` | 任务进度变更事件 |
+| Member            | Type                      | Description                |
+|-------------------|---------------------------|----------------------------|
+| `ProgressChanged` | `event TaskProgressEvent` | Task progress change event |
 
-`progress` 的取值范围为 `0.0` 到 `1.0`。
+The value range of `progress` is `0.0` to `1.0`.
 
-实现该接口后：
+After this interface is implemented:
 
-| `TaskModel` 属性    | 值                        |
-|-------------------|--------------------------|
-| `SupportProgress` | `true`                   |
-| `Progress`        | 由 `ProgressChanged` 同步更新 |
+| `TaskModel` property | Value                                         |
+|----------------------|-----------------------------------------------|
+| `SupportProgress`    | `true`                                        |
+| `Progress`           | Synchronized and updated by `ProgressChanged` |
 
-示例：
+Example:
 
 ```cs
 ProgressChanged?.Invoke(0.5);
@@ -183,7 +183,7 @@ ProgressChanged?.Invoke(0.5);
 
 ## `ITaskGroup`
 
-`ITaskGroup` 表示包含子任务的任务组。
+`ITaskGroup` represents a task group that contains child tasks.
 
 ```cs
 public delegate void TaskGroupEvent(ITask task);
@@ -196,55 +196,55 @@ public interface ITaskGroup : ITask
 }
 ```
 
-### 成员
+### Members
 
-| 成员           | 类型                     | 说明      |
-|--------------|------------------------|---------|
-| `AddTask`    | `event TaskGroupEvent` | 子任务添加事件 |
-| `RemoveTask` | `event TaskGroupEvent` | 子任务移除事件 |
+| Member       | Type                   | Description              |
+|--------------|------------------------|--------------------------|
+| `AddTask`    | `event TaskGroupEvent` | Child task added event   |
+| `RemoveTask` | `event TaskGroupEvent` | Child task removed event |
 
-任务组本身也是一个 `ITask`，因此可以被 `TaskCenter` 注册和执行。
+A task group itself is also an `ITask`, so it can be registered and executed by `TaskCenter`.
 
-当任务组添加子任务时，`TaskCenter` 会递归注册子任务，并将其对应的 `TaskModel` 添加到父任务模型的 `Children` 集合中。
+When a task group adds a child task, `TaskCenter` recursively registers the child task and adds its corresponding `TaskModel` to the `Children` collection of the parent task model.
 
-当任务组移除子任务时，对应的子任务模型也会从 `Children` 集合中移除。
+When a task group removes a child task, the corresponding child task model is also removed from the `Children` collection.
 
 ## `TaskModel`
 
-`TaskModel` 是任务系统生成的 UI 可观察模型，基于 `CommunityToolkit.Mvvm` 的 `ObservableObject`。
+`TaskModel` is the UI-observable model generated by the task system. It is based on `ObservableObject` from `CommunityToolkit.Mvvm`.
 
-`TaskModel` 由 `TaskCenter` 创建，不应由调用方手动构造。
+`TaskModel` is created by `TaskCenter` and should not be manually constructed by callers.
 
-### 属性
+### Properties
 
-| 属性                | 类型                                | 说明                     |
-|-------------------|-----------------------------------|------------------------|
-| `Title`           | `string`                          | 任务标题                   |
-| `State`           | `TaskState`                       | 当前任务状态                 |
-| `StateMessage`    | `string`                          | 当前状态说明                 |
-| `SupportProgress` | `bool`                            | 是否支持进度显示               |
-| `Progress`        | `double`                          | 当前进度，范围为 `0.0` 到 `1.0` |
-| `IsGroup`         | `bool`                            | 是否为任务组                 |
-| `Children`        | `ObservableCollection<TaskModel>` | 子任务模型集合                |
-| `Cancel`          | `RelayCommand`                    | 取消命令                   |
-| `Pause`           | `RelayCommand`                    | 暂停命令                   |
+| Property          | Type                              | Description                                   |
+|-------------------|-----------------------------------|-----------------------------------------------|
+| `Title`           | `string`                          | Task title                                    |
+| `State`           | `TaskState`                       | Current task state                            |
+| `StateMessage`    | `string`                          | Current state description                     |
+| `SupportProgress` | `bool`                            | Whether progress display is supported         |
+| `Progress`        | `double`                          | Current progress, ranging from `0.0` to `1.0` |
+| `IsGroup`         | `bool`                            | Whether this is a task group                  |
+| `Children`        | `ObservableCollection<TaskModel>` | Child task model collection                   |
+| `Cancel`          | `RelayCommand`                    | Cancel command                                |
+| `Pause`           | `RelayCommand`                    | Pause command                                 |
 
-### 命令状态
+### Command State
 
-| 命令       | 可用条件                     |
-|----------|--------------------------|
-| `Cancel` | 原始任务实现 `ITaskCancelable` |
-| `Pause`  | 原始任务实现 `ITaskPausable`   |
+| Command  | Available when                                 |
+|----------|------------------------------------------------|
+| `Cancel` | The original task implements `ITaskCancelable` |
+| `Pause`  | The original task implements `ITaskPausable`   |
 
-当任务不支持对应能力时，命令会处于不可用状态。
+When a task does not support the corresponding capability, the command is unavailable.
 
 ## `TaskCenter`
 
-`TaskCenter` 是任务系统的注册与管理入口。
+`TaskCenter` is the registration and management entry point of the task system.
 
 ### `Tasks`
 
-`Tasks` 是当前已注册任务模型的集合，可直接用于 UI 绑定。
+`Tasks` is the collection of currently registered task models and can be used directly for UI binding.
 
 ```cs
 ObservableCollection<TaskModel> allTasks = TaskCenter.Tasks;
@@ -252,85 +252,85 @@ ObservableCollection<TaskModel> allTasks = TaskCenter.Tasks;
 
 ### `Register`
 
-注册任务，并创建对应的 `TaskModel`。
+Registers a task and creates the corresponding `TaskModel`.
 
 ```cs
 TaskCenter.Register(task, start: true);
 ```
 
-#### 参数
+#### Parameters
 
-| 参数      | 类型      | 说明                     |
-|---------|---------|------------------------|
-| `task`  | `ITask` | 要注册的任务实例               |
-| `start` | `bool`  | 是否立即异步执行任务，默认值为 `true` |
+| Parameter | Type    | Description                                                                         |
+|-----------|---------|-------------------------------------------------------------------------------------|
+| `task`    | `ITask` | The task instance to register                                                       |
+| `start`   | `bool`  | Whether to execute the task asynchronously immediately. The default value is `true` |
 
-#### 行为
+#### Behavior
 
-注册任务时，`TaskCenter` 会执行以下操作：
+When registering a task, `TaskCenter` performs the following operations:
 
-* 创建对应的 `TaskModel`；
-* 将 `TaskModel` 加入 `TaskCenter.Tasks`；
-* 订阅 `ITask.StateChanged`；
-* 如果任务实现 `ITaskProgressive`，订阅 `ProgressChanged`；
-* 如果任务实现 `ITaskGroup`，绑定子任务添加与移除事件；
-* 如果 `start` 为 `true`，通过 `Task.Run` 启动 `ExecuteAsync`。
+* Creates the corresponding `TaskModel`;
+* Adds the `TaskModel` to `TaskCenter.Tasks`;
+* Subscribes to `ITask.StateChanged`;
+* If the task implements `ITaskProgressive`, subscribes to `ProgressChanged`;
+* If the task implements `ITaskGroup`, binds child task add and remove events;
+* If `start` is `true`, starts `ExecuteAsync` through `Task.Run`.
 
-当任务为任务组时，其子任务会被递归注册，并呈现在父任务模型的 `Children` 集合中。
+When the task is a task group, its child tasks are recursively registered and displayed in the `Children` collection of the parent task model.
 
 ### `RemoveFinished`
 
-移除所有已完成的任务模型。
+Removes all completed task models.
 
 ```cs
 TaskCenter.RemoveFinished();
 ```
 
-已完成任务指状态大于 `TaskState.Running` 的任务，包括：
+Completed tasks are tasks whose state is greater than `TaskState.Running`, including:
 
 * `TaskState.Success`
 * `TaskState.Canceled`
 * `TaskState.Failed`
 
-该方法只移除任务模型集合中的已完成项，不表示重新执行取消、释放或回滚任务本身的业务逻辑。
+This method only removes completed items from the task model collection. It does not mean re-executing cancellation, releasing resources, or rolling back the task’s own business logic.
 
-## 执行与异常行为
+## Execution and Exception Behavior
 
-当 `TaskCenter.Register(task, start: true)` 被调用时，任务会通过 `Task.Run` 启动，并执行其 `ExecuteAsync` 方法。
+When `TaskCenter.Register(task, start: true)` is called, the task is started through `Task.Run`, and its `ExecuteAsync` method is executed.
 
-任务执行期间的异常处理规则如下：
+Exception handling during task execution follows these rules:
 
-| 情况                              | 行为                |
-|---------------------------------|-------------------|
-| `ExecuteAsync` 正常完成             | 任务状态由任务实现方自行报告    |
-| 抛出 `OperationCanceledException` | 不按普通失败处理          |
-| 抛出其他异常                          | 任务状态会被置为 `Failed` |
+| Situation                              | Behavior                                                     |
+|----------------------------------------|--------------------------------------------------------------|
+| `ExecuteAsync` completes normally      | The task state is reported by the task implementation itself |
+| `OperationCanceledException` is thrown | Not treated as an ordinary failure                           |
+| Other exceptions are thrown            | The task state is set to `Failed`                            |
 
-任务实现方仍应在合适的位置主动报告 `Success`、`Canceled` 或其他状态，以确保 UI 模型能准确反映任务结果。
+The task implementation should still actively report `Success`, `Canceled`, or other states at appropriate points to ensure that the UI model accurately reflects the task result.
 
-## 状态与进度同步
+## State and Progress Synchronization
 
-`TaskCenter` 通过事件监听将任务状态同步到 `TaskModel`。
+`TaskCenter` synchronizes task state to `TaskModel` through event listening.
 
-| 任务接口或事件                            | 同步目标                                       |
-|------------------------------------|--------------------------------------------|
-| `ITask.StateChanged`               | `TaskModel.State`、`TaskModel.StateMessage` |
-| `ITaskProgressive.ProgressChanged` | `TaskModel.Progress`                       |
-| `ITaskGroup.AddTask`               | `TaskModel.Children`                       |
-| `ITaskGroup.RemoveTask`            | `TaskModel.Children`                       |
+| Task interface or event            | Synchronization target                      |
+|------------------------------------|---------------------------------------------|
+| `ITask.StateChanged`               | `TaskModel.State`, `TaskModel.StateMessage` |
+| `ITaskProgressive.ProgressChanged` | `TaskModel.Progress`                        |
+| `ITaskGroup.AddTask`               | `TaskModel.Children`                        |
+| `ITaskGroup.RemoveTask`            | `TaskModel.Children`                        |
 
-状态与进度均由任务实现方主动上报。任务系统不推断具体业务进度。
+Both state and progress are actively reported by the task implementation. The task system does not infer specific business progress.
 
-## 基本任务示例
+## Basic Task Example
 
-以下示例定义了一个支持进度报告和取消操作的下载任务。
+The following example defines a download task that supports progress reporting and cancellation.
 
 ```cs
 public sealed class DownloadTask : ITask, ITaskProgressive, ITaskCancelable
 {
     private CancellationTokenSource? _cts;
 
-    public string Title => "下载文件";
+    public string Title => "Download File";
 
     public event TaskStateEvent? StateChanged;
 
@@ -340,7 +340,7 @@ public sealed class DownloadTask : ITask, ITaskProgressive, ITaskCancelable
     {
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancelToken);
 
-        StateChanged?.Invoke(TaskState.Running, "开始下载");
+        StateChanged?.Invoke(TaskState.Running, "Starting download");
 
         for (int i = 0; i <= 100; i++)
         {
@@ -351,7 +351,7 @@ public sealed class DownloadTask : ITask, ITaskProgressive, ITaskCancelable
             await Task.Delay(50, _cts.Token);
         }
 
-        StateChanged?.Invoke(TaskState.Success, "下载完成");
+        StateChanged?.Invoke(TaskState.Success, "Download completed");
     }
 
     public void Cancel()
@@ -361,22 +361,22 @@ public sealed class DownloadTask : ITask, ITaskProgressive, ITaskCancelable
 }
 ```
 
-注册任务：
+Register the task:
 
 ```cs
 TaskCenter.Register(new DownloadTask());
 ```
 
-## 任务组示例
+## Task Group Example
 
-以下示例定义了一个批量下载任务组。
+The following example defines a batch download task group.
 
 ```cs
 public sealed class BatchDownloadGroup : ITaskGroup
 {
     private readonly List<ITask> _children = [];
 
-    public string Title => "批量下载";
+    public string Title => "Batch Download";
 
     public event TaskStateEvent? StateChanged;
 
@@ -405,16 +405,16 @@ public sealed class BatchDownloadGroup : ITaskGroup
 
     public async Task ExecuteAsync(CancellationToken cancelToken = default)
     {
-        StateChanged?.Invoke(TaskState.Running, "开始批量下载");
+        StateChanged?.Invoke(TaskState.Running, "Starting batch download");
 
         await Task.WhenAll(_children.Select(c => c.ExecuteAsync(cancelToken)));
 
-        StateChanged?.Invoke(TaskState.Success, "批量下载完成");
+        StateChanged?.Invoke(TaskState.Success, "Batch download completed");
     }
 }
 ```
 
-注册任务组：
+Register the task group:
 
 ```cs
 var group = new BatchDownloadGroup();
@@ -425,41 +425,41 @@ group.Add(new DownloadTask());
 TaskCenter.Register(group);
 ```
 
-任务组注册后，子任务会被递归注册，并显示在任务组对应 `TaskModel` 的 `Children` 集合中。
+After the task group is registered, its child tasks are recursively registered and displayed in the `Children` collection of the corresponding `TaskModel` for the task group.
 
-## API 摘要
+## API Summary
 
-### 核心接口
+### Core Interfaces
 
-| API                | 说明            |
-|--------------------|---------------|
-| `ITask`            | 响应式任务基础接口     |
-| `ITaskCancelable`  | 支持取消操作的任务接口   |
-| `ITaskPausable`    | 支持暂停操作的任务接口   |
-| `ITaskProgressive` | 支持进度报告的任务接口   |
-| `ITaskGroup`       | 支持子任务集合的任务组接口 |
+| API                | Description                                                |
+|--------------------|------------------------------------------------------------|
+| `ITask`            | Basic reactive task interface                              |
+| `ITaskCancelable`  | Task interface that supports cancellation                  |
+| `ITaskPausable`    | Task interface that supports pausing                       |
+| `ITaskProgressive` | Task interface that supports progress reporting            |
+| `ITaskGroup`       | Task group interface that supports a child task collection |
 
-### 事件委托
+### Event Delegates
 
-| API                 | 说明           |
-|---------------------|--------------|
-| `TaskStateEvent`    | 任务状态变更事件委托   |
-| `TaskProgressEvent` | 任务进度变更事件委托   |
-| `TaskGroupEvent`    | 任务组子任务变更事件委托 |
+| API                 | Description                                 |
+|---------------------|---------------------------------------------|
+| `TaskStateEvent`    | Task state change event delegate            |
+| `TaskProgressEvent` | Task progress change event delegate         |
+| `TaskGroupEvent`    | Task group child task change event delegate |
 
-### 模型与管理入口
+### Models and Management Entry Point
 
-| API          | 说明        |
-|--------------|-----------|
-| `TaskState`  | 任务状态枚举    |
-| `TaskModel`  | 可观察任务模型   |
-| `TaskCenter` | 任务注册与管理入口 |
+| API          | Description                                  |
+|--------------|----------------------------------------------|
+| `TaskState`  | Task state enum                              |
+| `TaskModel`  | Observable task model                        |
+| `TaskCenter` | Task registration and management entry point |
 
-## 使用建议
+## Usage Recommendations
 
-* 任务实现方应主动报告状态变化，不应依赖 `TaskCenter` 推断业务状态。
-* 支持取消的任务应实现 `ITaskCancelable`，并在 `ExecuteAsync` 中正确响应取消请求。
-* 支持进度的任务应将进度限制在 `0.0` 到 `1.0` 之间。
-* 长时间运行的任务应避免阻塞调用线程。
-* 任务组应在添加或移除子任务时触发对应事件，确保 `TaskModel.Children` 能正确同步。
-* UI 侧应优先绑定 `TaskCenter.Tasks` 和 `TaskModel`，避免直接依赖任务实例内部状态。
+* Task implementations should actively report state changes and should not rely on `TaskCenter` to infer business state.
+* Tasks that support cancellation should implement `ITaskCancelable` and correctly respond to cancellation requests in `ExecuteAsync`.
+* Tasks that support progress should keep progress within the range `0.0` to `1.0`.
+* Long-running tasks should avoid blocking the calling thread.
+* Task groups should trigger the corresponding events when adding or removing child tasks, so that `TaskModel.Children` can be synchronized correctly.
+* The UI side should prioritize binding to `TaskCenter.Tasks` and `TaskModel`, and avoid directly depending on the internal state of task instances.

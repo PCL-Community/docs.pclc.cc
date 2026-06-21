@@ -2,38 +2,38 @@
 order: 4
 ---
 
-# GPG 签名配置指南
+# GPG Signing Configuration Guide
 
-GPG（GNU Privacy Guard）可以为 Git 提交添加数字签名。将 GPG 公钥添加到 GitHub 后，GitHub 就可以验证提交是否确实来自对应账户。验证通过的提交会显示 **Verified** 徽章。
+GPG (GNU Privacy Guard) can add digital signatures to Git commits. After you add your GPG public key to GitHub, GitHub can verify whether commits are indeed from the corresponding account. Commits that pass verification will display the **Verified** badge.
 
-本文将带你从安装 GPG 开始，完成密钥生成、GitHub 配置、Git 签名设置，并提交一次带签名的 commit 进行验证。
+This article will guide you through installing GPG, generating a key, configuring GitHub, setting up Git commit signing, and creating a signed commit for verification.
 
-开始前，请先确保已经安装 Git。
+Before you begin, please make sure Git is already installed.
 
-## 一、安装 GPG 工具
+## 1. Install GPG Tools
 
-不同系统安装 GPG 的方式不同。安装完成后，可以通过 `gpg --version` 检查是否安装成功。
+The way to install GPG differs by operating system. After installation, you can run `gpg --version` to check whether it was installed successfully.
 
 ### Windows
 
-访问 [GnuPG 下载页面](https://gnupg.org/download/index.html)，在 `GnuPG binary releases` 栏中选择 Windows 版本下载。
+Visit the [GnuPG download page](https://gnupg.org/download/index.html), and select the Windows version in the `GnuPG binary releases` section to download it.
 
-你可以选择：
+You can choose:
 
-* **Gpg4win**：功能完整，包含图形化工具；
-* **GnuPG**：更轻量，只包含基础命令行工具。
+* **Gpg4win**: A complete package that includes graphical tools;
+* **GnuPG**: A lighter package that only includes basic command-line tools.
 
-如果你不确定该选哪个，建议安装 Gpg4win。
+If you are not sure which one to choose, Gpg4win is recommended.
 
 ### macOS
 
-推荐使用 [Homebrew](https://brew.sh/) 安装：
+It is recommended to install GPG using [Homebrew](https://brew.sh/):
 
 ```bash
 brew install gnupg
 ```
 
-安装完成后检查版本：
+After installation, check the version:
 
 ```bash
 gpg --version
@@ -41,114 +41,114 @@ gpg --version
 
 ### Linux
 
-Debian / Ubuntu 通常已经预装 GPG。可以先运行：
+GPG is usually preinstalled on Debian / Ubuntu. You can first run:
 
 ```bash
 gpg --version
 ```
 
-如果提示未找到命令，再执行：
+If the command is not found, run:
 
 ```bash
 sudo apt-get update
 sudo apt-get install gnupg
 ```
 
-## 二、生成 GPG 密钥对
+## 2. Generate a GPG Key Pair
 
-安装完成后，打开终端。
+After installation, open a terminal.
 
-Windows 用户可以使用 Git Bash、PowerShell 或 Windows Terminal；macOS 和 Linux 用户可以使用系统自带终端。
+Windows users can use Git Bash, PowerShell, or Windows Terminal. macOS and Linux users can use the system terminal.
 
-运行以下命令开始生成密钥：
+Run the following command to start generating a key:
 
 ```bash
 gpg --full-generate-key
 ```
 
-接下来 GPG 会询问你一系列问题。可以按照下面的建议填写。
+GPG will then ask you a series of questions. You can follow the suggestions below.
 
-### 1. 选择密钥类型
+### 1. Select the Key Type
 
-当出现密钥类型选择时，输入：
+When the key type selection appears, enter:
 
 ```text
 10
 ```
 
-表示选择：
+This means selecting:
 
 ```text
 (10) ECC (set your own capabilities)
 ```
 
-然后回车。
+Then press Enter.
 
-### 2. 选择密钥用途
+### 2. Select Key Capabilities
 
-密钥用途保持默认即可。
+Keep the default key capabilities.
 
-默认通常包含：
+The default usually includes:
 
 ```text
 S
 E
 ```
 
-其中：
+Where:
 
-* `S` 表示可以用于签名；
-* `E` 表示可以用于加密。
+* `S` means the key can be used for signing;
+* `E` means the key can be used for encryption.
 
-直接回车继续。
+Press Enter directly to continue.
 
-### 3. 选择椭圆曲线
+### 3. Select the Elliptic Curve
 
-当询问椭圆曲线时，输入：
+When asked to select an elliptic curve, enter:
 
 ```text
 1
 ```
 
-表示选择：
+This means selecting:
 
 ```text
 (1) Curve 25519
 ```
 
-然后回车。
+Then press Enter.
 
-Curve 25519 是目前常用的现代椭圆曲线，安全性和性能都比较适合作为日常 Git 提交签名使用。
+Curve 25519 is a commonly used modern elliptic curve. Its security and performance make it suitable for everyday Git commit signing.
 
-### 4. 设置有效期
+### 4. Set the Expiration Date
 
-建议输入：
+It is recommended to enter:
 
 ```text
 1y
 ```
 
-表示密钥有效期为 1 年。
+This means the key will be valid for 1 year.
 
-也可以直接回车选择永不过期，但不推荐。设置有效期可以降低密钥长期泄露带来的风险。
+You can also press Enter directly to make the key never expire, but this is not recommended. Setting an expiration date can reduce the risks caused by long-term key leakage.
 
-确认有效期后，输入：
+After confirming the expiration date, enter:
 
 ```text
 y
 ```
 
-然后回车。
+Then press Enter.
 
-## 三、填写身份信息
+## 3. Enter Identity Information
 
-接下来需要填写密钥对应的身份信息。
+Next, you need to enter the identity information associated with the key.
 
 ### Real name
 
-填写你的姓名、昵称或常用开发者名称。
+Enter your name, nickname, or commonly used developer name.
 
-例如：
+For example:
 
 ```text
 Wang Xiaoming
@@ -156,21 +156,21 @@ Wang Xiaoming
 
 ### Email address
 
-这里必须填写 GitHub 已验证的邮箱地址。
+You must enter an email address that has been verified on GitHub.
 
-该邮箱需要同时满足以下条件：
+This email address must meet all of the following conditions:
 
-* 已添加到 GitHub 账户；
-* 已在 GitHub 完成验证；
-* 与本地 Git 的 `user.email` 保持一致。
+* It has been added to your GitHub account;
+* It has been verified on GitHub;
+* It matches the local Git `user.email`.
 
-可以用下面的命令查看当前 Git 邮箱：
+You can view your current Git email with the following command:
 
 ```bash
 git config --global user.email
 ```
 
-如果需要修改，可以执行：
+If you need to change it, run:
 
 ```bash
 git config --global user.email "your_email@example.com"
@@ -178,33 +178,33 @@ git config --global user.email "your_email@example.com"
 
 ### Comment
 
-Comment 是可选项，可以直接回车跳过。
+Comment is optional. You can press Enter directly to skip it.
 
-确认信息无误后，输入：
+After confirming that the information is correct, enter:
 
 ```text
 O
 ```
 
-然后回车。
+Then press Enter.
 
-## 四、设置私钥密码
+## 4. Set the Private Key Passphrase
 
-GPG 会要求你为私钥设置 Passphrase，也就是私钥密码。
+GPG will ask you to set a Passphrase for the private key, meaning the private key password.
 
-建议设置一个足够安全、但自己能够记住的密码。
+It is recommended to set a password that is secure enough, but still memorable to you.
 
-之后每次进行签名提交时，系统可能会要求输入这个密码。`gpg-agent` 会在一段时间内缓存密码，因此短时间内连续提交通常不需要重复输入。
+Later, every time you create a signed commit, the system may ask you to enter this password. `gpg-agent` will cache the password for a period of time, so repeated commits within a short time usually do not require entering it again.
 
-## 五、查看 Key ID
+## 5. View the Key ID
 
-密钥生成完成后，运行以下命令查看本机已有的私钥：
+After the key is generated, run the following command to view the existing private keys on your machine:
 
 ```bash
 gpg --list-secret-keys --keyid-format=long
 ```
 
-你会看到类似输出：
+You will see output similar to this:
 
 ```text
 sec   ed25519/3AA5C34371567BD2 2025-08-28 [SC] [expires: 2026-08-28]
@@ -212,27 +212,27 @@ sec   ed25519/3AA5C34371567BD2 2025-08-28 [SC] [expires: 2026-08-28]
 uid                 [ultimate] Wang Xiaoming <your_email@example.com>
 ```
 
-其中，`sec` 行中斜杠 `/` 后面的内容就是 Key ID：
+In the `sec` line, the content after the slash `/` is the Key ID:
 
 ```text
 3AA5C34371567BD2
 ```
 
-后续命令中的 `YOUR_KEY_ID` 都需要替换成这个值。
+In subsequent commands, `YOUR_KEY_ID` needs to be replaced with this value.
 
-## 六、将 GPG 公钥添加到 GitHub
+## 6. Add the GPG Public Key to GitHub
 
-本地生成密钥后，还需要把公钥添加到 GitHub。GitHub 只有拿到你的公钥，才能验证你提交中的签名。
+After generating the key locally, you also need to add the public key to GitHub. GitHub can verify the signatures in your commits only after it has your public key.
 
-先导出公钥：
+First, export the public key:
 
 ```bash
 gpg --armor --export YOUR_KEY_ID
 ```
 
-请将 `YOUR_KEY_ID` 替换为上一节中查看到的 Key ID。
+Replace `YOUR_KEY_ID` with the Key ID found in the previous section.
 
-命令执行后，会输出一段以如下内容开头和结尾的文本：
+After the command runs, it will output a block of text that starts and ends like this:
 
 ```text
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -240,121 +240,121 @@ gpg --armor --export YOUR_KEY_ID
 -----END PGP PUBLIC KEY BLOCK-----
 ```
 
-完整复制这一整段内容。
+Copy this entire block of text.
 
-然后打开 GitHub：
+Then open GitHub:
 
-1. 进入 **Settings**。
-2. 打开 **SSH and GPG keys**。
-3. 点击 **New GPG key**。
-4. 将刚才复制的公钥粘贴到 **Key** 文本框中。
-5. 点击 **Add GPG key**。
+1. Go to **Settings**.
+2. Open **SSH and GPG keys**.
+3. Click **New GPG key**.
+4. Paste the public key you just copied into the **Key** text box.
+5. Click **Add GPG key**.
 
-添加完成后，GitHub 就可以识别使用该私钥签名的 Git 提交。
+After it is added, GitHub can recognize Git commits signed with the corresponding private key.
 
-## 七、配置 Git 使用 GPG 签名
+## 7. Configure Git to Use GPG Signing
 
-接下来需要告诉 Git 使用哪一个 GPG 密钥进行签名。
+Next, you need to tell Git which GPG key to use for signing.
 
-执行：
+Run:
 
 ```bash
 git config --global user.signingkey YOUR_KEY_ID
 ```
 
-同样需要将 `YOUR_KEY_ID` 替换为实际 Key ID。
+Again, replace `YOUR_KEY_ID` with the actual Key ID.
 
-然后启用自动签名：
+Then enable automatic signing:
 
 ```bash
 git config --global commit.gpgsign true
 ```
 
-启用后，每次执行 `git commit` 时，Git 都会自动为提交添加 GPG 签名，不需要再手动添加 `-S` 参数。
+After this is enabled, Git will automatically add a GPG signature every time you run `git commit`, so you do not need to manually add the `-S` parameter.
 
-如果只想对某一次提交签名，也可以不启用全局自动签名，而是在提交时手动使用：
+If you only want to sign a single commit, you can leave global automatic signing disabled and manually use the following command when committing:
 
 ```bash
 git commit -S -m "feat: signed commit"
 ```
 
-## 八、提交一次签名 commit
+## 8. Create a Signed Commit
 
-进入任意 Git 仓库，修改或新建一个文件。
+Enter any Git repository, then modify or create a file.
 
-然后执行：
+Then run:
 
 ```bash
 git add .
 git commit -m "feat: first signed commit"
 ```
 
-提交时，系统可能会弹出 GPG 密码输入窗口，或在终端中要求你输入 Passphrase。
+When committing, the system may open a GPG password input window, or ask you to enter the Passphrase in the terminal.
 
-输入正确后，commit 会被成功创建。
+After you enter the correct password, the commit will be created successfully.
 
-接着推送到 GitHub：
+Then push it to GitHub:
 
 ```bash
 git push
 ```
 
-打开 GitHub 仓库的提交记录。如果配置正确，刚才的提交旁边会显示 **Verified** 徽章。
+Open the commit history of the GitHub repository. If the configuration is correct, the commit you just created will display the **Verified** badge next to it.
 
-## 九、检查当前配置
+## 9. Check the Current Configuration
 
-如果提交没有显示 **Verified**，可以先检查 Git 当前配置。
+If the commit does not display **Verified**, you can first check the current Git configuration.
 
-查看签名密钥：
+View the signing key:
 
 ```bash
 git config --global user.signingkey
 ```
 
-查看是否启用自动签名：
+Check whether automatic signing is enabled:
 
 ```bash
 git config --global commit.gpgsign
 ```
 
-查看 Git 邮箱：
+View the Git email:
 
 ```bash
 git config --global user.email
 ```
 
-查看 GPG 私钥：
+View GPG private keys:
 
 ```bash
 gpg --list-secret-keys --keyid-format=long
 ```
 
-确认以下几项是否一致：
+Confirm whether the following items are consistent:
 
-* GPG Key 中的邮箱；
-* Git 的 `user.email`；
-* GitHub 账户中已验证的邮箱；
-* GitHub 中添加的 GPG 公钥。
+* The email in the GPG Key;
+* Git’s `user.email`;
+* The verified email address in your GitHub account;
+* The GPG public key added to GitHub.
 
-## 十、常见问题
+## 10. Common Issues
 
 ### `gpg failed to sign the data`
 
-这个错误通常表示 Git 调用 GPG 签名失败。
+This error usually means that Git failed to call GPG for signing.
 
-可以先检查是否能正常列出私钥：
+First, check whether private keys can be listed normally:
 
 ```bash
 gpg --list-secret-keys --keyid-format=long
 ```
 
-如果能看到密钥，再检查 Git 是否配置了正确的 Key ID：
+If you can see the key, then check whether Git is configured with the correct Key ID:
 
 ```bash
 git config --global user.signingkey
 ```
 
-如果 Key ID 不正确，重新设置：
+If the Key ID is incorrect, set it again:
 
 ```bash
 git config --global user.signingkey YOUR_KEY_ID
@@ -362,26 +362,26 @@ git config --global user.signingkey YOUR_KEY_ID
 
 ### `Inappropriate ioctl for device`
 
-这个错误通常是因为 GPG 没有正确识别当前终端。
+This error usually occurs because GPG did not correctly recognize the current terminal.
 
-在 shell 配置文件中添加：
+Add the following to your shell configuration file:
 
 ```bash
 export GPG_TTY=$(tty)
 ```
 
-常见配置文件包括：
+Common configuration files include:
 
-* Bash：`~/.bashrc`
-* Zsh：`~/.zshrc`
+* Bash: `~/.bashrc`
+* Zsh: `~/.zshrc`
 
-添加后重启终端，或执行：
+After adding it, restart the terminal, or run:
 
 ```bash
 source ~/.bashrc
 ```
 
-如果你使用的是 Zsh，则执行：
+If you are using Zsh, run:
 
 ```bash
 source ~/.zshrc
@@ -389,75 +389,75 @@ source ~/.zshrc
 
 ### `gpg: command not found`
 
-这个错误表示系统找不到 GPG 命令。
+This error means the system cannot find the GPG command.
 
-请先确认 GPG 是否已经安装。如果已经安装，但 Git 仍然找不到 GPG，可以手动指定 GPG 程序路径。
+Please first confirm whether GPG has already been installed. If it has been installed but Git still cannot find GPG, you can manually specify the GPG program path.
 
-Windows 常见路径：
+Common Windows path:
 
 ```bash
 git config --global gpg.program "C:\Program Files (x86)\GnuPG\bin\gpg.exe"
 ```
 
-macOS Homebrew 常见路径：
+Common macOS Homebrew path:
 
 ```bash
 git config --global gpg.program /opt/homebrew/bin/gpg
 ```
 
-如果是 Intel Mac，也可能是：
+For Intel Macs, it may also be:
 
 ```bash
 git config --global gpg.program /usr/local/bin/gpg
 ```
 
-Linux 常见路径：
+Common Linux path:
 
 ```bash
 git config --global gpg.program /usr/bin/gpg
 ```
 
-如果不确定实际路径，可以使用以下命令查找。
+If you are not sure of the actual path, use the following command to find it.
 
-Windows：
+Windows:
 
 ```bash
 where gpg
 ```
 
-macOS / Linux：
+macOS / Linux:
 
 ```bash
 which gpg
 ```
 
-然后将查到的路径填入 `gpg.program`。
+Then fill the path you found into `gpg.program`.
 
-### 提交显示 `Unverified`
+### Commits Display `Unverified`
 
-提交显示 `Unverified` 通常是身份信息没有匹配成功。
+Commits displaying `Unverified` usually means that the identity information did not match successfully.
 
-请检查以下内容：
+Please check the following:
 
-1. 生成 GPG Key 时填写的邮箱是否正确。
-2. `git config user.email` 是否与 GPG Key 邮箱一致。
-3. 该邮箱是否已经添加到 GitHub。
-4. 该邮箱是否已经在 GitHub 完成验证。
-5. GitHub 中添加的是否是当前 Key ID 对应的公钥。
-6. 提交是否确实使用 GPG 签名。
+1. Whether the email entered when generating the GPG Key is correct.
+2. Whether `git config user.email` matches the email in the GPG Key.
+3. Whether the email has been added to GitHub.
+4. Whether the email has been verified on GitHub.
+5. Whether the key added to GitHub is the public key corresponding to the current Key ID.
+6. Whether the commit was actually signed with GPG.
 
-可以查看某个提交是否带有签名：
+You can check whether a commit includes a signature:
 
 ```bash
 git log --show-signature -1
 ```
 
-如果没有签名信息，说明提交时没有成功签名。请重新检查自动签名配置，或使用 `-S` 手动提交一次测试。
+If no signature information is shown, the commit was not successfully signed when it was created. Please check the automatic signing configuration again, or use `-S` to manually create one signed test commit.
 
-## 十一、后续维护建议
+## 11. Ongoing Maintenance Recommendations
 
-GPG 私钥应妥善保存，不要发送给他人，也不要上传到公开仓库。
+Your GPG private key should be stored properly. Do not send it to others, and do not upload it to public repositories.
 
-如果你更换电脑，需要将私钥迁移到新设备，或在新设备上重新生成一对密钥，并将新的公钥添加到 GitHub。
+If you change computers, you need to migrate the private key to the new device, or generate a new key pair on the new device and add the new public key to GitHub.
 
-如果密钥泄露、设备丢失，或你不再使用某个密钥，应及时在 GitHub 中删除对应 GPG Key，并重新生成新的密钥。
+If the key is leaked, the device is lost, or you no longer use a key, you should promptly delete the corresponding GPG Key from GitHub and generate a new key.

@@ -235,7 +235,8 @@ git add .
 git commit -m "docs: 更新 LittleSkin 外置登录教程"
 ```
 
-::: warning 注意 提交信息应该遵守[技术规范-提交信息规范-简单格式](/ce/developers/guidelines#%E7%AE%80%E5%8D%95%E6%A0%BC%E5%BC%8F)内规定的格式。
+::: warning 注意
+提交信息应该遵守[技术规范-提交信息规范-简单格式](/ce/developers/guidelines#%E7%AE%80%E5%8D%95%E6%A0%BC%E5%BC%8F)内规定的格式。
 :::
 
 ## 十一、推送分支并创建 Pull Request

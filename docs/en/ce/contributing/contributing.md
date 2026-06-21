@@ -1,34 +1,34 @@
-# 如何为 PCL CE 文档站点贡献内容？
+# How to Contribute to the PCL CE Documentation Site?
 
-本文档面向希望为 PCL CE 文档站点贡献内容的开发者和文档维护者。无论你只是想修正一个错别字、补充一张截图，还是准备新增一篇完整教程，都可以按照本文的流程完成贡献。
+This document is for developers and documentation maintainers who want to contribute content to the PCL CE documentation site. Whether you only want to fix a typo, add a screenshot, or write a complete new tutorial, you can follow the workflow in this document to contribute.
 
-如果你是第一次参与贡献，建议从较小的修改开始，例如修正文档中的错误、补充缺失说明，或更新已经过期的截图。熟悉流程后，再尝试新增页面、迁移 XAML 帮助内容，或改进文档站点本身。
+If this is your first time contributing, it is recommended to start with smaller changes, such as fixing errors in the documentation, adding missing explanations, or updating outdated screenshots. After you become familiar with the workflow, you can try adding new pages, migrating XAML help content, or improving the documentation site itself.
 
-## 一、开始之前：确认你要贡献什么
+## 1. Before You Start: Confirm What You Want to Contribute
 
-::: warning ✋ 在此之前
-请先完整阅读并了解[编写规范](./writing-guidelines.md)，不符合规范的贡献可能会被拒绝！
+::: warning ✋ Before Proceeding
+Please read and understand the [Writing Guidelines](./writing-guidelines.md) first. Contributions that do not comply with the guidelines may be rejected!
 :::
 
-在动手修改前，建议先明确这次贡献的目标。PCL CE 文档站点接受多种类型的贡献，不同贡献需要关注的内容也略有不同。
+Before making changes, it is recommended to first clarify the goal of your contribution. The PCL CE documentation site accepts many types of contributions, and different types of contributions require attention to slightly different things.
 
-如果你主要修改文档内容，例如修复错误、补充说明、添加截图、翻译页面或新建帮助文档，那么大多数情况下只需要了解 Markdown 写法和文档目录结构。
+If you mainly want to modify documentation content, such as fixing errors, adding explanations, adding screenshots, translating pages, or creating new help documents, then in most cases you only need to understand Markdown syntax and the documentation directory structure.
 
-如果你希望改进站点功能，例如调整主题样式、编写 Vue 或 VitePress 组件、添加自动化检查工具，则需要额外了解项目使用的前端技术栈。
+If you want to improve site functionality, such as adjusting theme styles, writing Vue or VitePress components, or adding automated checking tools, you will also need to understand the frontend technology stack used by the project.
 
-如果你参与维护工作，例如整理 Issue、协助审查 Pull Request、调整导航结构，也可以通过 GitHub 完成，不一定需要编写代码。
+If you participate in maintenance work, such as organizing Issues, helping review Pull Requests, or adjusting the navigation structure, you can also complete these tasks through GitHub and do not necessarily need to write code.
 
-## 二、准备本地环境
+## 2. Prepare the Local Environment
 
-在开始贡献前，请先安装以下工具：
+Before contributing, please install the following tools:
 
-* [Node.js](https://nodejs.org/)：推荐使用 LTS 版本。由于 pnpm 版本限制，需要 `22.x` 或更高版本。
-* [pnpm](https://pnpm.io/)：需要 `v11` 或更高版本。
-* [Git](https://git-scm.com/)：用于克隆仓库、提交修改和推送分支。
+* [Node.js](https://nodejs.org/): The LTS version is recommended. Due to pnpm version restrictions, `22.x` or later is required.
+* [pnpm](https://pnpm.io/): `v11` or later is required.
+* [Git](https://git-scm.com/): Used to clone the repository, commit changes, and push branches.
 
-此外，建议准备一个适合编辑 Markdown 和前端项目的编辑器或 IDE。推荐使用 [VS Code](https://code.visualstudio.com/)，因为它启动较快，Markdown 预览、Git 操作和终端集成都比较方便。如果你更习惯 JetBrains 系列工具，也可以使用 [WebStorm](https://www.jetbrains.com/webstorm/) 或 [IntelliJ IDEA](https://www.jetbrains.com/idea/)。
+In addition, it is recommended to prepare an editor or IDE suitable for editing Markdown and frontend projects. [VS Code](https://code.visualstudio.com/) is recommended because it starts quickly and provides convenient Markdown preview, Git operations, and terminal integration. If you are more used to JetBrains tools, you can also use [WebStorm](https://www.jetbrains.com/webstorm/) or [IntelliJ IDEA](https://www.jetbrains.com/idea/).
 
-安装完成后，可以在终端中运行以下命令确认版本：
+After installation, run the following commands in a terminal to confirm the versions:
 
 ```bash
 node -v
@@ -36,82 +36,82 @@ pnpm -v
 git -v
 ```
 
-如果这些命令都能正常输出版本号，说明基础环境已经准备完成。
+If all of these commands output version numbers correctly, the basic environment is ready.
 
-## 三、配置 GitHub 与 SSH
+## 3. Configure GitHub and SSH
 
-项目托管在 GitHub 上。为了能够克隆仓库、推送分支和提交 Pull Request，你需要先准备好 GitHub 账号，并配置 SSH 密钥。
+The project is hosted on GitHub. To clone the repository, push branches, and submit Pull Requests, you need to prepare a GitHub account and configure an SSH key first.
 
-如果你尚未配置 SSH，可以参考 GitHub 官方文档：
+If you have not configured SSH yet, refer to the official GitHub documentation:
 
-[将新的 SSH 密钥添加到 GitHub 帐户](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
+[Adding a new SSH key to your GitHub account](https://docs.github.com/zh/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 
-配置完成后，可以使用以下命令测试 SSH 是否可用：
+After configuration, you can test whether SSH is available with the following command:
 
 ```bash
 ssh -T git@github.com
 ```
 
-首次连接时，终端可能会询问是否信任 GitHub 主机。确认后，如果看到类似成功认证的信息，就可以继续下一步。
+When connecting for the first time, the terminal may ask whether to trust the GitHub host. After confirming, if you see a message similar to successful authentication, you can continue to the next step.
 
-## 四、Fork 并克隆仓库
+## 4. Fork and Clone the Repository
 
-参与贡献时，推荐先 Fork 项目仓库，再在自己的 Fork 中创建分支并提交修改。
+When contributing, it is recommended to fork the project repository first, then create branches and submit changes in your own fork.
 
-打开项目仓库页面后，点击右上角的 **Fork**，将仓库复制到自己的 GitHub 账号下。
+After opening the project repository page, click **Fork** in the upper-right corner to copy the repository to your own GitHub account.
 
-Fork 完成后，在本地克隆你的 Fork 仓库：
+After the fork is complete, clone your fork locally:
 
 ```bash
-git clone git@github.com:你的用户名/docs.pclc.cc.git
+git clone git@github.com:your-username/docs.pclc.cc.git
 cd docs.pclc.cc
 ```
 
-为了方便之后同步上游仓库，建议添加原仓库作为 `upstream`：
+To make it easier to sync with the upstream repository later, it is recommended to add the original repository as `upstream`:
 
 ```bash
 git remote add upstream git@github.com:PCL-Community/docs.pclc.cc.git
 ```
 
-可以通过以下命令检查远程仓库配置：
+You can check the remote repository configuration with the following command:
 
 ```bash
 git remote -v
 ```
 
-正常情况下，你应该能看到 `origin` 指向自己的 Fork，`upstream` 指向 PCL Community 的原仓库。
+Normally, you should see `origin` pointing to your own fork, and `upstream` pointing to the original PCL Community repository.
 
-克隆完成后，可以使用你习惯的编辑器或 IDE 打开项目目录。之后的安装依赖、启动开发服务器、编辑文档等操作，都可以在 IDE 内置终端中完成。
+After cloning is complete, open the project directory with your preferred editor or IDE. Later operations such as installing dependencies, starting the development server, and editing documentation can all be completed in the IDE’s built-in terminal.
 
-## 五、安装依赖并启动本地预览
+## 5. Install Dependencies and Start Local Preview
 
-进入项目目录后，先安装依赖：
+After entering the project directory, install dependencies first:
 
 ```bash
 pnpm install
 ```
 
-依赖安装完成后，启动本地开发服务器：
+After the dependencies are installed, start the local development server:
 
 ```bash
 nr dev
 ```
 
-启动成功后，终端会显示本地预览地址。打开该地址后，你就可以在浏览器中查看文档站点。
+After startup succeeds, the terminal will display the local preview address. Open this address to view the documentation site in your browser.
 
-修改文档时，开发服务器通常会自动刷新页面。建议一边编辑，一边在浏览器中检查最终显示效果。
+When modifying documentation, the development server usually refreshes the page automatically. It is recommended to edit the documentation while checking the final display result in the browser.
 
-## 六、创建一个新的工作分支
+## 6. Create a New Working Branch
 
-不要直接在主分支上修改内容。每次贡献前，都应该创建一个新的工作分支。
+Do not modify content directly on the main branch. Before each contribution, you should create a new working branch.
 
-分支名称建议简短描述本次修改内容，例如：
+The branch name should briefly describe the current change, for example:
 
 ```bash
 git checkout -b docs/update-littleskin-guide
 ```
 
-也可以根据贡献类型命名：
+You can also name the branch according to the contribution type:
 
 ```bash
 git checkout -b docs/fix-typos
@@ -119,11 +119,11 @@ git checkout -b docs/add-mod-install-guide
 git checkout -b feat/add-doc-component
 ```
 
-一个分支最好只处理一类修改。这样后续审查和合并会更清晰。
+A branch should ideally handle only one category of changes. This makes later review and merging clearer.
 
-## 七、撰写或修改文档
+## 7. Write or Modify Documentation
 
-文档使用 Markdown 编写，文件后缀为 `.md`。新增文件时，文件名应使用小写字母，并用连字符分隔单词，例如：
+Documentation is written in Markdown, and file names use the `.md` extension. When adding new files, file names should use lowercase letters and separate words with hyphens, for example:
 
 ```text
 install-mods.md
@@ -131,197 +131,198 @@ external-login.md
 troubleshooting-launch-failed.md
 ```
 
-每篇文档建议包含前置元数据，用于控制排序和标题：
+Each document is recommended to include frontmatter metadata for controlling ordering and titles:
 
 ```yaml
 ---
 order: 1
-title: 文档标题
+title: Document Title
 ---
 ```
 
-其中，`order` 用于控制文档排序，数字越小越靠前。`title` 可用于覆盖默认显示标题。
+Here, `order` is used to control document ordering. A smaller number means the document appears earlier. `title` can be used to override the default display title.
 
-正文可以按照下面的结构编写：
+The body can be written using the following structure:
 
 ```markdown
 ---
 order: 1
 ---
 
-# 文档标题
+# Document Title
 
-这里写一段简短介绍，说明这篇文档解决什么问题，适合谁阅读。
+Write a short introduction here, explaining what problem this document solves and who should read it.
 
-## 一、准备工作
+## 1. Preparation
 
-说明开始前需要准备什么。
+Explain what needs to be prepared before starting.
 
-## 二、操作步骤
+## 2. Steps
 
-按照实际操作顺序说明。
+Explain the steps in the actual operation order.
 
-## 三、常见问题
+## 3. Common Issues
 
-补充容易出错的地方。
+Add notes about things that are easy to get wrong.
 ```
 
-撰写教程时，建议尽量使用完整句子说明操作原因和结果，不要只堆叠命令、列表或截图。读者应该能理解“为什么要这样做”，而不仅是“下一步点哪里”。
+When writing tutorials, try to use complete sentences to explain the reason and result of each operation. Do not only stack commands, lists, or screenshots. Readers should be able to understand “why to do this”, not only “where to click next”.
 
-## 八、添加图片和链接
+## 8. Add Images and Links
 
-文档图片应放在 `public/contents/` 目录下。
+Documentation images should be placed in the `public/contents/` directory.
 
-引用图片时，使用以 `/contents/` 开头的路径：
+When referencing images, use paths starting with `/contents/`:
 
 ```markdown
-![图片描述](/contents/image-name.png)
+![Image description](/contents/image-name.png)
 ```
 
-图片描述应尽量说明图片内容，而不是只写“图片”。例如：
+The image description should explain the image content as much as possible, instead of only saying “image”. For example:
 
 ```markdown
-![LittleSkin 角色管理页面](/contents/littleskin-role-page.png)
+![LittleSkin character management page](/contents/littleskin-role-page.png)
 ```
 
-文档之间的链接建议使用相对路径：
+Links between documents should use relative paths:
 
 ```markdown
-[相关文档](./other-doc.md)
+[Related document](./other-doc.md)
 ```
 
-引用站点外部页面时，可以直接使用完整链接：
+When referencing external pages, you can use full links directly:
 
 ```markdown
 [GitHub Issues](https://github.com/PCL-Community/docs.pclc.cc/issues)
 ```
 
-## 九、本地检查修改效果
+## 9. Check the Changes Locally
 
-完成修改后，回到浏览器中的本地预览页面，检查以下内容：
+After completing the changes, return to the local preview page in your browser and check the following:
 
-1. 页面是否能正常打开。
-2. 标题层级是否正确。
-3. 图片是否正常显示。
-4. 链接是否可以打开。
-5. 代码块、提示块、表格等格式是否正常。
-6. 内容是否符合教程阅读顺序。
+1. Whether the page opens normally.
+2. Whether heading levels are correct.
+3. Whether images display correctly.
+4. Whether links can be opened.
+5. Whether code blocks, admonition blocks, tables, and other formats are displayed correctly.
+6. Whether the content follows a reasonable tutorial reading order.
 
-如果你新增了文档，也要确认它是否出现在正确的导航位置中。若没有出现，可能需要检查文档的目录位置、前置元数据或站点导航配置。
+If you added a new document, also confirm whether it appears in the correct navigation position. If it does not appear, you may need to check the document’s directory location, frontmatter metadata, or site navigation configuration.
 
-## 十、提交修改
+## 10. Commit Changes
 
-确认修改无误后，可以查看当前变更：
+After confirming that the changes are correct, view the current changes:
 
 ```bash
 git status
 ```
 
-也可以查看具体修改内容：
+You can also view the specific modifications:
 
 ```bash
 git diff
 ```
 
-确认无误后，将修改加入暂存区：
+After confirming everything is correct, add the changes to the staging area:
 
 ```bash
 git add .
 ```
 
-然后提交修改：
+Then commit the changes:
 
 ```bash
 git commit -m "docs: 更新 LittleSkin 外置登录教程"
 ```
 
-::: warning 注意 提交信息应该遵守[技术规范-提交信息规范-简单格式](/ce/developers/guidelines#%E7%AE%80%E5%8D%95%E6%A0%BC%E5%BC%8F)内规定的格式。
+::: warning Note
+The commit message should follow the format specified in [Technical Guidelines - Commit Message Convention - Simple Format](/ce/developers/guidelines#%E7%AE%80%E5%8D%95%E6%A0%BC%E5%BC%8F).
 :::
 
-## 十一、推送分支并创建 Pull Request
+## 11. Push the Branch and Create a Pull Request
 
-提交完成后，将分支推送到你的 Fork 仓库：
+After committing, push the branch to your fork repository:
 
 ```bash
 git push origin docs/update-littleskin-guide
 ```
 
-推送成功后，打开 GitHub。通常页面会提示你创建 Pull Request。
+After the push succeeds, open GitHub. The page will usually prompt you to create a Pull Request.
 
-创建 Pull Request 时，请说明本次修改的内容。可以简单写明：
+When creating the Pull Request, please explain the changes made in this submission. You can briefly write:
 
 ```markdown
-## 修改内容
+## Changes
 
-- 优化 LittleSkin 外置登录教程结构
-- 将截图移动到对应步骤附近
-- 补充常见问题说明
+- Improved the structure of the LittleSkin third-party login tutorial
+- Moved screenshots closer to the corresponding steps
+- Added common issue explanations
 
-## 检查情况
+## Checks
 
-- 已在本地启动开发服务器预览
-- 已检查图片与链接显示
+- Previewed locally by starting the development server
+- Checked image and link display
 ```
 
-提交 Pull Request 后，维护者可能会提出修改建议。根据建议继续修改并提交到同一分支即可，Pull Request 会自动更新。
+After submitting the Pull Request, maintainers may suggest changes. Continue modifying and committing to the same branch according to the suggestions, and the Pull Request will update automatically.
 
-## 十二、同步上游仓库
+## 12. Sync the Upstream Repository
 
-如果你的 Fork 落后于原仓库，可以同步上游更新。
+If your fork is behind the original repository, you can sync upstream updates.
 
-先拉取上游仓库信息：
+First, fetch information from the upstream repository:
 
 ```bash
 git fetch upstream
 ```
 
-切换到主分支：
+Switch to the main branch:
 
 ```bash
 git checkout main
 ```
 
-合并上游主分支：
+Merge the upstream main branch:
 
 ```bash
 git merge upstream/main
 ```
 
-再将更新推送到自己的 Fork：
+Then push the updates to your own fork:
 
 ```bash
 git push origin main
 ```
 
-之后再创建新的工作分支，可以减少冲突。
+Creating a new working branch afterward can reduce conflicts.
 
-## 十三、常见问题
+## 13. Common Issues
 
-### 如何添加图片？
+### How do I add images?
 
-将图片放入 `public/contents/` 目录，然后在 Markdown 中引用：
-
-```markdown
-![图片描述](/contents/image-name.png)
-```
-
-### 文档中的链接应该怎么写？
-
-链接到站内其他文档时，使用相对路径：
+Place the images in the `public/contents/` directory, then reference them in Markdown:
 
 ```markdown
-[链接文本](./relative-path.md)
+![Image description](/contents/image-name.png)
 ```
 
-链接到外部网站时，使用完整链接：
+### How should links in documentation be written?
+
+When linking to other documents within the site, use relative paths:
 
 ```markdown
-[链接文本](https://example.com)
+[Link text](./relative-path.md)
 ```
 
-### 如何设置文档排序？
+When linking to external websites, use full links:
 
-在文档开头的前置元数据中设置 `order` 字段：
+```markdown
+[Link text](https://example.com)
+```
+
+### How do I set document ordering?
+
+Set the `order` field in the frontmatter metadata at the beginning of the document:
 
 ```yaml
 ---
@@ -329,17 +330,17 @@ order: 1
 ---
 ```
 
-数字越小，排序越靠前。
+A smaller number means the document appears earlier.
 
-### Pull Request 提交后还可以继续修改吗？
+### Can I continue modifying a Pull Request after submitting it?
 
-可以。只要继续在同一个分支上提交并推送，Pull Request 会自动更新。
+Yes. As long as you continue committing and pushing to the same branch, the Pull Request will update automatically.
 
-## 十四、获取帮助
+## 14. Getting Help
 
-遇到问题时，可以通过以下方式获取帮助：
+If you encounter problems, you can get help in the following ways:
 
-* 在 [GitHub Issues](https://github.com/PCL-Community/docs.pclc.cc/issues) 提问。
-* 在 Pull Request 中说明遇到的问题，等待维护者协助。
+* Ask a question in [GitHub Issues](https://github.com/PCL-Community/docs.pclc.cc/issues).
+* Explain the issue in your Pull Request and wait for maintainers to help.
 
-感谢你为 PCL CE 文档站点做出的贡献！
+Thank you for contributing to the PCL CE documentation site!

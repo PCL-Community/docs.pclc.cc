@@ -2,236 +2,236 @@
 order: 5
 ---
 
-# RPC API 说明
+# RPC API Reference
 
-本文介绍 PCL CE 启动器 RPC 服务的基本信息、通信格式、请求与响应结构，以及当前对外开放的属性和函数。
+This article introduces the basic information, communication format, request and response structures, and currently exposed properties and functions of the PCL CE launcher RPC service.
 
-PCL CE 内置了一个基于命名管道通信的 RPC 服务。本地第三方进程可以通过该服务与正在运行的启动器交换数据，例如获取启动器版本、读取实时状态、监听日志流，或请求启动器修改部分设置项。
+PCL CE includes an RPC service based on named pipe communication. Local third-party processes can use this service to exchange data with the running launcher, such as obtaining the launcher version, reading real-time status, listening to log streams, or requesting the launcher to modify certain settings.
 
-## 服务信息
+## Service Information
 
-启动器运行后，会创建一个命名管道服务端。管道名称格式如下：
+After the launcher starts, it creates a named pipe server. The pipe name format is as follows:
 
 ```text
 PCLCE_RPC@ProcessID
 ```
 
-其中，`ProcessID` 为启动器当前进程的 ID。在 .NET 中，可以通过 `System.Diagnostics` 命名空间提供的 API 获取进程 ID。
+Here, `ProcessID` is the ID of the current launcher process. In .NET, the process ID can be obtained through APIs provided by the `System.Diagnostics` namespace.
 
-RPC 服务默认开启。若客户端无法连接到管道，可能有以下原因：
+The RPC service is enabled by default. If a client cannot connect to the pipe, possible reasons include:
 
-* 用户在启动器中启用了“禁用 RPC 服务”设置项；
-* 启动器尚未运行；
-* 目标进程 ID 不正确；
-* 其他进程占用了 RPC 管道；
-* 当前进程没有访问该命名管道的权限。
+* The user has enabled the “Disable RPC Service” setting in the launcher;
+* The launcher is not running yet;
+* The target process ID is incorrect;
+* Another process is occupying the RPC pipe;
+* The current process does not have permission to access the named pipe.
 
-## 通信格式
+## Communication Format
 
-请求和响应均使用 `UTF-8` 编码。
+Both requests and responses use `UTF-8` encoding.
 
-每条消息由两部分组成：
+Each message consists of two parts:
 
-| 部分        | 说明                       |
-|-----------|--------------------------|
-| `header`  | 必需，位于第一行，用于描述请求或响应的基本信息  |
-| `content` | 可选，位于 header 之后，用于传递正文内容 |
+| Part      | Description                                                                                              |
+|-----------|----------------------------------------------------------------------------------------------------------|
+| `header`  | Required. Located on the first line and used to describe basic information about the request or response |
+| `content` | Optional. Located after the header and used to pass body content                                         |
 
-消息正文需要以特殊字符 `ESC` 结尾。该字符在 ASCII 和 Unicode 中的编码如下：
+The message body must end with the special character `ESC`. This character is encoded as follows in ASCII and Unicode:
 
-| 表示方式 | 值      |
-|------|--------|
-| 八进制  | `033`  |
-| 十进制  | `27`   |
-| 十六进制 | `0x1B` |
-| 转义写法 | `\x1B` |
+| Representation  | Value  |
+|-----------------|--------|
+| Octal           | `033`  |
+| Decimal         | `27`   |
+| Hexadecimal     | `0x1B` |
+| Escape sequence | `\x1B` |
 
-无论 `content` 是否为空，请求和响应都必须至少包含两行。也就是说，`header` 所在行的末尾必须包含换行符。
+Regardless of whether `content` is empty, requests and responses must contain at least two lines. In other words, the line containing `header` must end with a line break.
 
 ```text
 HEADER
 CONTENT\x1B
 ```
 
-当 `content` 为空时，仍然需要保留 `header` 后的换行符。
+When `content` is empty, the line break after `header` must still be preserved.
 
 ```text
 HEADER
 \x1B
 ```
 
-## 请求格式
+## Request Format
 
-请求的 header 格式如下：
+The request header format is as follows:
 
 ```text
 TYPE argument
 ```
 
-| 字段         | 说明   |
-|------------|------|
-| `TYPE`     | 请求类型 |
-| `argument` | 请求参数 |
+| Field      | Description      |
+|------------|------------------|
+| `TYPE`     | Request type     |
+| `argument` | Request argument |
 
-### 请求类型
+### Request Types
 
-| 类型    | 说明          |
-|-------|-------------|
-| `GET` | 获取指定属性的值    |
-| `SET` | 修改指定属性的值    |
-| `REQ` | 调用指定 RPC 函数 |
+| Type  | Description                                  |
+|-------|----------------------------------------------|
+| `GET` | Gets the value of the specified property     |
+| `SET` | Modifies the value of the specified property |
+| `REQ` | Calls the specified RPC function             |
 
 ### `GET`
 
-`GET` 用于读取属性值。
+`GET` is used to read a property value.
 
 ```text
 GET version
 \x1B
 ```
 
-当请求类型为 `GET` 时，整个 `argument` 会被视为属性名称。属性名称不区分大小写。
+When the request type is `GET`, the entire `argument` is treated as the property name. Property names are case-insensitive.
 
 ### `SET`
 
-`SET` 用于修改属性值。
+`SET` is used to modify a property value.
 
 ```text
 SET SomeProperty
 NewValue\x1B
 ```
 
-当请求类型为 `SET` 时，整个 `argument` 会被视为属性名称。属性名称不区分大小写。
+When the request type is `SET`, the entire `argument` is treated as the property name. Property names are case-insensitive.
 
-需要写入的新值应放在 `content` 中。若写入成功，服务端会返回空响应，并通过响应状态表示操作结果。
+The new value to write should be placed in `content`. If the write succeeds, the server returns an empty response and indicates the operation result through the response status.
 
 ### `REQ`
 
-`REQ` 用于调用 RPC 函数。
+`REQ` is used to call an RPC function.
 
 ```text
 REQ ping
 \x1B
 ```
 
-当请求类型为 `REQ` 时，`argument` 会按空格分割：
+When the request type is `REQ`, `argument` is split by spaces:
 
-* 第一项为函数名称；
-* 剩余部分为函数参数。
+* The first item is the function name;
+* The remaining items are function arguments.
 
-函数名称不区分大小写。函数参数区分大小写，但最终行为取决于函数自身的实现。
+Function names are case-insensitive. Function arguments are case-sensitive, but the final behavior depends on the implementation of the function itself.
 
-例如：
+For example:
 
 ```text
 REQ SomeFunction arg1 arg2
 \x1B
 ```
 
-## 响应格式
+## Response Format
 
-响应的 header 格式如下：
+The response header format is as follows:
 
 ```text
 STATUS type name
 ```
 
-| 字段       | 说明     |
-|----------|--------|
-| `STATUS` | 响应状态   |
-| `type`   | 响应内容类型 |
-| `name`   | 响应内容名称 |
+| Field    | Description           |
+|----------|-----------------------|
+| `STATUS` | Response status       |
+| `type`   | Response content type |
+| `name`   | Response content name |
 
-### 响应状态
+### Response Status
 
-| 状态        | 说明            |
-|-----------|---------------|
-| `SUCCESS` | 请求处理成功        |
-| `FAILURE` | 请求已被处理，但操作未成功 |
-| `ERR`     | 请求处理过程中发生错误   |
+| Status    | Description                                                  |
+|-----------|--------------------------------------------------------------|
+| `SUCCESS` | The request was processed successfully                       |
+| `FAILURE` | The request was processed, but the operation did not succeed |
+| `ERR`     | An error occurred while processing the request               |
 
-### 响应内容类型
+### Response Content Types
 
-| 类型       | 说明          |
-|----------|-------------|
-| `empty`  | 空响应，无正文内容   |
-| `text`   | 文本内容        |
-| `json`   | JSON 内容     |
-| `base64` | Base64 编码内容 |
+| Type     | Description                         |
+|----------|-------------------------------------|
+| `empty`  | Empty response with no body content |
+| `text`   | Text content                        |
+| `json`   | JSON content                        |
+| `base64` | Base64-encoded content              |
 
-当 `type` 为 `empty` 时，表示响应没有正文内容。
+When `type` is `empty`, the response has no body content.
 
 ```text
 SUCCESS empty ping
 \x1B
 ```
 
-当 `type` 不为 `empty` 时，响应正文位于 header 后方。
+When `type` is not `empty`, the response body is located after the header.
 
 ```text
 SUCCESS text version
 2.11.2-beta.3\x1B
 ```
 
-## 属性权限标记
+## Property Permission Marks
 
-属性可能带有访问权限标记。权限标记由两个字符组成：
+Properties may have access permission marks. A permission mark consists of two characters:
 
 ```text
-<读取权限><写入权限>
+<read permission><write permission>
 ```
 
-每个字符的含义如下：
+The meaning of each character is as follows:
 
-| 字符  | 含义         |
-|-----|------------|
-| `r` | 可直接读取      |
-| `w` | 可直接写入      |
-| `x` | 操作前需要向用户确认 |
-| `o` | 不支持该操作     |
+| Character | Meaning                                            |
+|-----------|----------------------------------------------------|
+| `r`       | Can be read directly                               |
+| `w`       | Can be written directly                            |
+| `x`       | User confirmation is required before the operation |
+| `o`       | The operation is not supported                     |
 
-例如：
+For example:
 
-| 标记   | 说明             |
-|------|----------------|
-| `ro` | 可读取，不可写入       |
-| `ow` | 不可读取，可写入       |
-| `rw` | 可读取，可写入        |
-| `rx` | 可读取，写入前需要用户确认  |
-| `xw` | 读取前需要用户确认，可写入  |
-| `xo` | 读取前需要用户确认，不可写入 |
-| `ox` | 不可读取，写入前需要用户确认 |
+| Mark | Description                                                |
+|------|------------------------------------------------------------|
+| `ro` | Readable, not writable                                     |
+| `ow` | Not readable, writable                                     |
+| `rw` | Readable and writable                                      |
+| `rx` | Readable; user confirmation is required before writing     |
+| `xw` | User confirmation is required before reading; writable     |
+| `xo` | User confirmation is required before reading; not writable |
+| `ox` | Not readable; user confirmation is required before writing |
 
-对不支持的操作发起请求时，服务端会返回 `FAILURE` 状态的空响应。
+When a request is made for an unsupported operation, the server returns an empty response with the `FAILURE` status.
 
-例如：
+For example:
 
-* 对 `ro` 或 `xo` 属性使用 `SET`；
-* 对 `ow` 或 `ox` 属性使用 `GET`。
+* Using `SET` on a property marked `ro` or `xo`;
+* Using `GET` on a property marked `ow` or `ox`.
 
-对需要用户确认的操作发起请求时，启动器会向用户弹窗询问。若用户拒绝，也会返回 `FAILURE` 状态的空响应。
+When a request is made for an operation that requires user confirmation, the launcher displays a dialog asking the user. If the user rejects the request, an empty response with the `FAILURE` status is also returned.
 
-## 属性
+## Properties
 
-启动器当前公开以下属性。所有属性值均为文本类型。
+The launcher currently exposes the following properties. All property values are text values.
 
-| 属性名       | 权限   | 类型     | 说明      | 示例              |
-|-----------|------|--------|---------|-----------------|
-| `version` | `ro` | `text` | 当前启动器版本 | `2.11.2-beta.3` |
-| `branch`  | `ro` | `text` | 当前版本分支名 | `Slow Ring`     |
+| Property name | Permission | Type   | Description                 | Example         |
+|---------------|------------|--------|-----------------------------|-----------------|
+| `version`     | `ro`       | `text` | Current launcher version    | `2.11.2-beta.3` |
+| `branch`      | `ro`       | `text` | Current version branch name | `Slow Ring`     |
 
 ### `version`
 
-获取当前启动器版本。
+Gets the current launcher version.
 
-请求示例：
+Request example:
 
 ```text
 GET version
 \x1B
 ```
 
-响应示例：
+Response example:
 
 ```text
 SUCCESS text version
@@ -240,50 +240,50 @@ SUCCESS text version
 
 ### `branch`
 
-获取当前版本分支名。
+Gets the current version branch name.
 
-请求示例：
+Request example:
 
 ```text
 GET branch
 \x1B
 ```
 
-响应示例：
+Response example:
 
 ```text
 SUCCESS text branch
 Slow Ring\x1B
 ```
 
-## 函数
+## Functions
 
-RPC 函数的定义格式如下：
+RPC functions are defined in the following format:
 
 ```text
-函数名 参数 content 返回值类型
+function-name arguments content return-type
 ```
 
-| 函数     | 参数     | content | 返回值类型   | 说明           |
-|--------|--------|---------|---------|--------------|
-| `ping` | `void` | `empty` | `empty` | 测试 RPC 服务连通性 |
+| Function | Arguments | content | Return type | Description                    |
+|----------|-----------|---------|-------------|--------------------------------|
+| `ping`   | `void`    | `empty` | `empty`     | Tests RPC service connectivity |
 
 ### `ping`
 
-测试客户端与启动器 RPC 服务之间的连通性。
+Tests connectivity between the client and the launcher RPC service.
 
-请求示例：
+Request example:
 
 ```text
 REQ ping
 \x1B
 ```
 
-响应示例：
+Response example:
 
 ```text
 SUCCESS empty ping
 \x1B
 ```
 
-如果客户端能够收到 `SUCCESS` 状态的响应，则表示 RPC 服务可正常通信。
+If the client receives a response with the `SUCCESS` status, the RPC service is communicating normally.

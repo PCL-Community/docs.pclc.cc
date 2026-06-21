@@ -2,11 +2,11 @@
 order: 2
 ---
 
-# EventBus 事件总线
+# EventBus Event Bus
 
-`EventBus` 是基于生命周期服务的发布/订阅式事件总线，位于 `PCL.Core.App.EventBus` 命名空间，用于解耦事件发布者与事件处理者。
+`EventBus` is a publish/subscribe event bus based on lifecycle services. It is located in the `PCL.Core.App.EventBus` namespace and is used to decouple event publishers from event handlers.
 
-所有事件总线相关能力均通过 `EventBusService` 公开。
+All event-bus-related capabilities are exposed through `EventBusService`.
 
 ```mermaid
 flowchart LR
@@ -16,39 +16,39 @@ flowchart LR
     C -->|dispatch| H3[...]
 ```
 
-## 概览
+## Overview
 
-`EventBus` 以频道为单位分发事件。发布者向指定频道发布事件数据后，订阅了该频道且事件数据类型兼容的处理者会被调用。
+`EventBus` distributes events by channel. After a publisher publishes event data to a specified channel, handlers that have subscribed to that channel and are compatible with the event data type will be called.
 
-一个频道可以同时存在多个订阅者。订阅者可以是实现 `IEventHandler<TEventData>` 的对象，也可以是异步委托。
+A channel can have multiple subscribers at the same time. Subscribers can be objects that implement `IEventHandler<TEventData>`, or asynchronous delegates.
 
-| 概念   | 说明                                    |
-|------|---------------------------------------|
-| 事件数据 | 继承自 `EventDataBase` 的数据对象             |
-| 频道   | 事件发布与订阅的逻辑分组，由字符串名称标识                 |
-| 发布者  | 调用 `PublishAsync` 向频道发布事件的一方          |
-| 订阅者  | 通过 `Subscribe` 注册到频道的事件处理者            |
-| 对象订阅 | 通过 `IEventHandler<TEventData>` 实例处理事件 |
-| 委托订阅 | 通过异步委托处理事件                            |
+| Concept               | Description                                                                        |
+|-----------------------|------------------------------------------------------------------------------------|
+| Event data            | A data object that inherits from `EventDataBase`                                   |
+| Channel               | A logical group for event publishing and subscription, identified by a string name |
+| Publisher             | The party that calls `PublishAsync` to publish events to a channel                 |
+| Subscriber            | An event handler registered to a channel through `Subscribe`                       |
+| Object subscription   | Handles events through an `IEventHandler<TEventData>` instance                     |
+| Delegate subscription | Handles events through an asynchronous delegate                                    |
 
-## 核心类型
+## Core Types
 
 ### `EventDataBase`
 
-事件数据的基类，所有自定义事件数据均需继承该类型。
+The base class for event data. All custom event data must inherit from this type.
 
 ```cs
 public record EventDataBase(Guid Id, string Name);
 ```
 
-#### 参数
+#### Parameters
 
-| 参数     | 类型       | 说明     |
-|--------|----------|--------|
-| `Id`   | `Guid`   | 事件唯一标识 |
-| `Name` | `string` | 事件名称   |
+| Parameter | Type     | Description             |
+|-----------|----------|-------------------------|
+| `Id`      | `Guid`   | Unique event identifier |
+| `Name`    | `string` | Event name              |
 
-#### 示例
+#### Example
 
 ```cs
 public sealed record FileDownloadedEvent(
@@ -60,7 +60,7 @@ public sealed record FileDownloadedEvent(
 
 ### `IEventHandler<TEventData>`
 
-事件处理接口。实现该接口的实例可通过 `EventBusService.Subscribe` 注册为事件处理者。
+The event handling interface. Instances that implement this interface can be registered as event handlers through `EventBusService.Subscribe`.
 
 ```cs
 public interface IEventHandler<in TEventData> : IDisposable
@@ -69,20 +69,20 @@ public interface IEventHandler<in TEventData> : IDisposable
 }
 ```
 
-#### 类型参数
+#### Type Parameters
 
-| 参数           | 约束              | 说明              |
-|--------------|-----------------|-----------------|
-| `TEventData` | `EventDataBase` | 当前处理者可处理的事件数据类型 |
+| Parameter    | Constraint      | Description                                             |
+|--------------|-----------------|---------------------------------------------------------|
+| `TEventData` | `EventDataBase` | The event data type that the current handler can handle |
 
-#### 方法
+#### Methods
 
-| 方法                                       | 说明           |
-|------------------------------------------|--------------|
-| `HandleEventAsync(TEventData eventData)` | 处理事件数据       |
-| `Dispose()`                              | 释放处理者自身持有的资源 |
+| Method                                   | Description                                   |
+|------------------------------------------|-----------------------------------------------|
+| `HandleEventAsync(TEventData eventData)` | Handles event data                            |
+| `Dispose()`                              | Releases resources held by the handler itself |
 
-#### 示例
+#### Example
 
 ```cs
 public sealed class DownloadNotificationHandler
@@ -104,19 +104,19 @@ public sealed class DownloadNotificationHandler
 
 ## `EventBusService`
 
-`EventBusService` 是事件总线的统一访问入口，负责频道管理、事件订阅和事件发布。
+`EventBusService` is the unified access entry point for the event bus. It is responsible for channel management, event subscription, and event publishing.
 
 ### `Subscribe`
 
-将事件处理者订阅到指定频道。
+Subscribes an event handler to a specified channel.
 
-#### 对象订阅
+#### Object Subscription
 
 ```cs
 EventBusService.Subscribe("channel-name", handler);
 ```
 
-对象订阅接收一个实现 `IEventHandler<TEventData>` 的处理者实例。
+Object subscription accepts a handler instance that implements `IEventHandler<TEventData>`.
 
 ```cs
 IDisposable subscription =
@@ -126,7 +126,7 @@ IDisposable subscription =
     );
 ```
 
-#### 委托订阅
+#### Delegate Subscription
 
 ```cs
 EventBusService.Subscribe<MyEventData>("channel-name", async data =>
@@ -135,7 +135,7 @@ EventBusService.Subscribe<MyEventData>("channel-name", async data =>
 });
 ```
 
-委托订阅适合处理逻辑较短、无需单独维护处理者状态的场景。
+Delegate subscription is suitable for scenarios where the handling logic is short and no separate handler state needs to be maintained.
 
 ```cs
 IDisposable subscription =
@@ -148,30 +148,30 @@ IDisposable subscription =
     );
 ```
 
-#### 返回值
+#### Return Value
 
-`Subscribe` 返回一个 `IDisposable` 实例。调用该实例的 `Dispose()` 方法可取消订阅。
+`Subscribe` returns an `IDisposable` instance. Calling the `Dispose()` method on this instance cancels the subscription.
 
 ```cs
 subscription.Dispose();
 ```
 
-#### 行为
+#### Behavior
 
-* 如果订阅时指定的频道不存在，`EventBusService` 会自动创建该频道。
-* 同一频道可以注册多个订阅者。
-* 订阅者只会处理与其事件数据类型兼容的事件。
-* 对象订阅通过弱引用持有处理者实例，详见“垃圾回收行为”。
+* If the channel specified during subscription does not exist, `EventBusService` will automatically create it.
+* Multiple subscribers can be registered to the same channel.
+* Subscribers only handle events compatible with their event data type.
+* Object subscriptions hold handler instances through weak references. See “Garbage Collection Behavior” for details.
 
 ### `PublishAsync`
 
-向指定频道发布事件。
+Publishes an event to a specified channel.
 
 ```cs
 await EventBusService.PublishAsync("channel-name", eventData);
 ```
 
-#### 示例
+#### Example
 
 ```cs
 await EventBusService.PublishAsync(
@@ -184,42 +184,42 @@ await EventBusService.PublishAsync(
 );
 ```
 
-#### 行为
+#### Behavior
 
-* 事件会被派发给订阅了目标频道的所有兼容处理者。
-* 多个处理者会被并行调用。
-* 单个处理者抛出的异常不会阻止其他处理者执行。
-* 如果 `EventBus` 正在关闭，发布事件会抛出 `InvalidOperationException`。
+* The event is dispatched to all compatible handlers subscribed to the target channel.
+* Multiple handlers are called in parallel.
+* An exception thrown by a single handler does not prevent other handlers from running.
+* If `EventBus` is shutting down, publishing an event will throw an `InvalidOperationException`.
 
 ### `AddChannel`
 
-显式创建频道。
+Explicitly creates a channel.
 
 ```cs
 EventBusService.AddChannel("channel-name");
 ```
 
-通常不需要手动创建频道，因为 `Subscribe` 会在频道不存在时自动创建频道。显式创建频道适合需要提前初始化频道，或需要表达频道存在性的场景。
+You usually do not need to create channels manually, because `Subscribe` automatically creates a channel if it does not exist. Explicit channel creation is suitable for scenarios where a channel needs to be initialized in advance, or where the existence of the channel needs to be expressed.
 
 ### `RemoveChannel`
 
-移除指定频道。
+Removes the specified channel.
 
 ```cs
 EventBusService.RemoveChannel("channel-name");
 ```
 
-移除频道时，该频道中的所有订阅者也会被清除。
+When a channel is removed, all subscribers in that channel are also cleared.
 
-## 频道
+## Channels
 
-频道用于隔离不同类型或不同来源的事件。频道名称为字符串，由调用方自行约定。
+Channels are used to isolate events of different types or from different sources. A channel name is a string and is agreed upon by the caller.
 
 ```cs
 const string DownloadChannel = "download";
 ```
 
-建议将频道名称定义为常量，避免在多处代码中直接书写字符串。
+It is recommended to define channel names as constants to avoid writing string literals directly in multiple places.
 
 ```cs
 public static class EventChannels
@@ -228,40 +228,40 @@ public static class EventChannels
 }
 ```
 
-## 生命周期行为
+## Lifecycle Behavior
 
-`EventBus` 基于生命周期服务运行，其可用状态与应用生命周期相关。
+`EventBus` runs based on lifecycle services, and its availability is related to the application lifecycle.
 
-| 阶段   | 行为                                                |
-|------|---------------------------------------------------|
-| 程序早期 | 服务启动状态为 `BeforeLoading`，此时事件总线已可用                 |
-| 正常运行 | 可以创建频道、订阅事件和发布事件                                  |
-| 程序停止 | 自动清空所有频道与处理者                                      |
-| 正在关闭 | 调用 `PublishAsync` 会抛出 `InvalidOperationException` |
+| Phase               | Behavior                                                                                           |
+|---------------------|----------------------------------------------------------------------------------------------------|
+| Early program stage | The service starting state is `BeforeLoading`, so the event bus is already available at this point |
+| Normal runtime      | Channels can be created, events can be subscribed to, and events can be published                  |
+| Program shutdown    | All channels and handlers are automatically cleared                                                |
+| Shutting down       | Calling `PublishAsync` throws an `InvalidOperationException`                                       |
 
-## 垃圾回收行为
+## Garbage Collection Behavior
 
-对象订阅通过 `WeakReference<object>` 持有处理者实例。
+Object subscriptions hold handler instances through `WeakReference<object>`.
 
-当处理者实例已经被垃圾回收，但对应订阅尚未显式取消时，事件总线会在下一次事件派发时自动移除该订阅项。
+When a handler instance has already been garbage collected but the corresponding subscription has not been explicitly canceled, the event bus automatically removes that subscription item during the next event dispatch.
 
-该机制可以降低忘记取消订阅导致的对象泄漏风险，但不应替代显式释放。对于生命周期明确的订阅，仍建议保存 `Subscribe` 返回的 `IDisposable`，并在不再需要时调用 `Dispose()`。
+This mechanism can reduce the risk of object leaks caused by forgetting to unsubscribe, but it should not replace explicit disposal. For subscriptions with a clear lifecycle, it is still recommended to keep the `IDisposable` returned by `Subscribe` and call `Dispose()` when the subscription is no longer needed.
 
-## 异常行为
+## Exception Behavior
 
-事件发布时，处理者抛出的异常不会影响其他处理者执行。
+When an event is published, exceptions thrown by handlers do not affect the execution of other handlers.
 
 ```cs
 await EventBusService.PublishAsync("channel-name", eventData);
 ```
 
-如果多个处理者订阅了同一频道，其中一个处理者在处理事件时抛出异常，其他处理者仍会继续执行。
+If multiple handlers have subscribed to the same channel and one handler throws an exception while handling the event, the other handlers will still continue to run.
 
-当 `EventBus` 正在关闭时调用 `PublishAsync`，会抛出 `InvalidOperationException`。
+Calling `PublishAsync` while `EventBus` is shutting down will throw an `InvalidOperationException`.
 
-## 完整示例
+## Complete Example
 
-以下示例展示事件数据定义、事件处理者实现、事件订阅、事件发布与取消订阅的完整结构。
+The following example shows the complete structure of event data definition, event handler implementation, event subscription, event publishing, and subscription cancellation.
 
 ```cs
 public sealed record FileDownloadedEvent(
@@ -317,29 +317,29 @@ public static class DownloadManager
 }
 ```
 
-## API 摘要
+## API Summary
 
-### 类型
+### Types
 
-| API                         | 说明        |
-|-----------------------------|-----------|
-| `EventDataBase`             | 所有事件数据的基类 |
-| `IEventHandler<TEventData>` | 事件处理接口    |
-| `EventBusService`           | 事件总线服务入口  |
+| API                         | Description                   |
+|-----------------------------|-------------------------------|
+| `EventDataBase`             | Base class for all event data |
+| `IEventHandler<TEventData>` | Event handling interface      |
+| `EventBusService`           | Event bus service entry point |
 
-### `EventBusService` 成员
+### `EventBusService` Members
 
-| API                  | 说明        |
-|----------------------|-----------|
-| `Subscribe(...)`     | 订阅指定频道的事件 |
-| `PublishAsync(...)`  | 向指定频道发布事件 |
-| `AddChannel(...)`    | 显式创建频道    |
-| `RemoveChannel(...)` | 移除频道及其订阅者 |
+| API                  | Description                                 |
+|----------------------|---------------------------------------------|
+| `Subscribe(...)`     | Subscribes to events on a specified channel |
+| `PublishAsync(...)`  | Publishes events to a specified channel     |
+| `AddChannel(...)`    | Explicitly creates a channel                |
+| `RemoveChannel(...)` | Removes a channel and its subscribers       |
 
-## 使用建议
+## Usage Recommendations
 
-* 频道名称建议统一定义为常量，避免硬编码字符串分散在不同文件中。
-* 长生命周期订阅应保存 `Subscribe` 返回的 `IDisposable`，并在不再需要时调用 `Dispose()`。
-* 事件数据应使用不可变 `record` 类型，避免处理过程中被意外修改。
-* 复杂处理逻辑建议使用 `IEventHandler<TEventData>` 实现，简单逻辑可以使用委托订阅。
-* 不应依赖订阅者执行顺序。多个订阅者会并行执行。
+* Channel names should be uniformly defined as constants to avoid scattering hard-coded strings across different files.
+* Long-lived subscriptions should keep the `IDisposable` returned by `Subscribe`, and call `Dispose()` when they are no longer needed.
+* Event data should use immutable `record` types to avoid accidental modification during handling.
+* Complex handling logic should be implemented using `IEventHandler<TEventData>`, while simple logic can use delegate subscription.
+* Do not rely on subscriber execution order. Multiple subscribers run in parallel.
