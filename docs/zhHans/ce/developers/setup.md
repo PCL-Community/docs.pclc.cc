@@ -41,7 +41,7 @@ NuGet Gallery 也可以使用华为云提供的 [NuGet 镜像](https://mirrors.h
 | 版本控制工具      | `Git`，以及用于提交签名的 `GPG` 或 `SSH`                                 |
 | SDK 工具链     | `.NET SDK 11.0` 或更高版本                                         |
 | 运行时         | `.NET Desktop Runtime 10.0`                                    |
-| 集成开发环境（IDE） | `JetBrains Rider 2026.1` 或更高版本，或 `Visual Studio 2026` 或更高版本 |
+| 集成开发环境（IDE） | `JetBrains Rider 2026.3` 或更高版本，或 `Visual Studio 2026` 或更高版本 |
 
 ::: info 提示
 SDK 版本应等于或高于表中给出的版本。

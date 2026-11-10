@@ -38,7 +38,7 @@ This section lists the basic tools required for project development. If you are 
 | Version control tools                    | `Git`, and `GPG` or `SSH` for commit signing                          |
 | SDK toolchain                            | `.NET SDK 11.0` or later                                              |
 | Runtime                                  | `.NET Desktop Runtime 10.0`                                            |
-| Integrated development environment (IDE) | `JetBrains Rider 2026.1` or later, or `Visual Studio 2026` or later |
+| Integrated development environment (IDE) | `JetBrains Rider 2026.3` or later, or `Visual Studio 2026` or later |
 
 ::: info Note
 The SDK version should be equal to or higher than the version listed in the table.
