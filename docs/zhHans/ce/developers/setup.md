@@ -9,7 +9,7 @@ order: 2
 如果你已经熟悉 Git、.NET 桌面开发和 GitHub Pull Request 流程，可以重点阅读“基本环境需求”“初始化解决方案”和“发起 Pull Request”部分。
 
 ::: warning 系统要求
-PCL CE 面向 .NET 8 Desktop，运行和调试环境要求 Windows 10 1607 或以上版本。本文默认你使用较新的 Windows 系统进行开发。
+PCL CE 面向 .NET 10 Desktop，运行和调试环境要求 Windows 10 1607 或以上版本。本文默认你使用较新的 Windows 系统进行开发。
 
 如果你使用 Linux、macOS 或较旧版本的 Windows，请自行配置 Windows 虚拟机调试环境，或升级到受支持的系统版本。
 
@@ -39,9 +39,9 @@ NuGet Gallery 也可以使用华为云提供的 [NuGet 镜像](https://mirrors.h
 | 类型          | 要求                                                            |
 |-------------|---------------------------------------------------------------|
 | 版本控制工具      | `Git`，以及用于提交签名的 `GPG` 或 `SSH`                                 |
-| SDK 工具链     | `.NET SDK 10.0` 或更高版本                                         |
-| 运行时         | `.NET Desktop Runtime 8.0`                                    |
-| 集成开发环境（IDE） | `JetBrains Rider 2025.3.2` 或更高版本，或 `Visual Studio 2026` 或更高版本 |
+| SDK 工具链     | `.NET SDK 11.0` 或更高版本                                         |
+| 运行时         | `.NET Desktop Runtime 10.0`                                    |
+| 集成开发环境（IDE） | `JetBrains Rider 2026.1` 或更高版本，或 `Visual Studio 2026` 或更高版本 |
 
 ::: info 提示
 SDK 版本应等于或高于表中给出的版本。

@@ -9,7 +9,7 @@ This article introduces the basic workflow for setting up a local development en
 If you are already familiar with Git, .NET desktop development, and the GitHub Pull Request workflow, you may focus on the “Basic Environment Requirements”, “Initialize the Solution”, and “Open a Pull Request” sections.
 
 ::: warning System Requirements
-PCL CE targets .NET 8 Desktop. Running and debugging it requires Windows 10 Version 1607 or later. This article assumes that you are developing on a relatively recent Windows system.
+PCL CE targets .NET 10 Desktop. Running and debugging it requires Windows 10 Version 1607 or later. This article assumes that you are developing on a relatively recent Windows system.
 
 If you use Linux, macOS, or an older version of Windows, please configure a Windows virtual machine for debugging, or upgrade to a supported system version.
 
@@ -36,9 +36,9 @@ This section lists the basic tools required for project development. If you are 
 | Type                                     | Requirement                                                           |
 |------------------------------------------|-----------------------------------------------------------------------|
 | Version control tools                    | `Git`, and `GPG` or `SSH` for commit signing                          |
-| SDK toolchain                            | `.NET SDK 10.0` or later                                              |
-| Runtime                                  | `.NET Desktop Runtime 8.0`                                            |
-| Integrated development environment (IDE) | `JetBrains Rider 2025.3.2` or later, or `Visual Studio 2026` or later |
+| SDK toolchain                            | `.NET SDK 11.0` or later                                              |
+| Runtime                                  | `.NET Desktop Runtime 10.0`                                            |
+| Integrated development environment (IDE) | `JetBrains Rider 2026.1` or later, or `Visual Studio 2026` or later |
 
 ::: info Note
 The SDK version should be equal to or higher than the version listed in the table.
