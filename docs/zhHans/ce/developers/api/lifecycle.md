@@ -4,7 +4,7 @@ order: 1
 
 # 生命周期管理
 
-生命周期管理（Lifecycle Management）是 PCL CE 核心库中用于组织应用启动、运行与退出流程的基础机制，位于 `PCL.Core.App` 命名空间。
+生命周期管理（Lifecycle Management）是 PCL CE 核心库中用于组织应用启动、运行与退出流程的基础机制，位于 `PCL.Core.App.IoC` 命名空间。
 
 该系统通过固定的生命周期状态与可注册的生命周期服务，将不同模块的初始化、运行期任务和退出清理逻辑挂载到应用的指定阶段中执行。
 
@@ -14,9 +14,9 @@ order: 1
 
 生命周期系统由两个核心概念组成：
 
-| 概念     | 说明                                          |
-|--------|---------------------------------------------|
-| 生命周期状态 | 应用运行过程中的固定阶段，由 `LifecycleState` 枚举表示        |
+| 概念         | 说明                                                              |
+|--------------|-------------------------------------------------------------------|
+| 生命周期状态 | 应用运行过程中的固定阶段，由 `LifecycleState` 枚举表示            |
 | 生命周期服务 | 参与生命周期调度的服务，由 `ILifecycleService` 或相关封装类型实现 |
 
 生命周期服务会在声明的起始状态被初始化并启动。应用退出时，生命周期系统会对仍处于活动状态的服务执行停止逻辑。
@@ -35,23 +35,28 @@ order: 1
 生命周期相关 API 主要位于以下命名空间：
 
 ```cs
-using PCL.Core.App;
+using PCL.Core.App.IoC;
 ```
 
 ## 生命周期状态
 
 生命周期状态由 `LifecycleState` 枚举表示，用于描述应用当前所处的运行阶段。
 
-文档中涉及的状态包括：
+`LifecycleState` 枚举定义了以下状态：
 
-| 状态              | 说明     |
-|-----------------|--------|
-| `BeforeLoading` | 加载前阶段  |
-| `Loaded`        | 加载完成阶段 |
-| `Running`       | 正常运行阶段 |
-| `Exiting`       | 退出阶段   |
+| 状态             | 说明                   |
+|------------------|------------------------|
+| `Manual`         | 手动管理，不会自动启动 |
+| `BeforeLoading`  | 预加载阶段             |
+| `Loading`        | 加载阶段               |
+| `Loaded`         | 加载完成阶段           |
+| `WindowCreating` | 主窗口创建阶段         |
+| `WindowCreated`  | 主窗口创建完成后       |
+| `Running`        | 正常运行阶段           |
+| `Closing`        | 关闭请求阶段           |
+| `Exiting`        | 退出阶段               |
 
-生命周期服务通过 `LifecycleService` 特性声明自己的起始状态。服务会在应用进入对应状态时启动。
+生命周期服务通过 `LifecycleService` 特性声明起始状态。除 `Manual` 状态外，服务会在应用进入对应状态时启动；`Manual` 状态的服务需要显式启动。
 
 具体状态流转顺序、状态含义与调度细节以源码内代码文档为准。
 
@@ -63,10 +68,12 @@ using PCL.Core.App;
 
 * 实现 `ILifecycleService` 接口，或继承生命周期系统提供的服务基类；
 * 使用 `LifecycleService` 特性声明服务起始状态；
-* 提供可供生命周期系统实例化的构造方式；
+* 提供可供生命周期系统调用的构造函数；
 * 实现启动与停止逻辑。
 
 生命周期服务通常用于承载一个模块的全局能力，例如消息广播、更新检查、事件总线、配置系统初始化等。
+
+实际项目中，推荐将服务声明为 `partial` 类，组合使用 `[LifecycleService]` 和 `[LifecycleScope]`，并通过 `[LifecycleStart]`、`[LifecycleStop]` 标记启动和停止方法。源生成器会据此生成 `ILifecycleService` 的实现及相应调用逻辑。需要完全控制服务生命周期时，再考虑手动实现 `ILifecycleService`。
 
 ## `ILifecycleService`
 
@@ -76,13 +83,13 @@ using PCL.Core.App;
 
 ### 基本成员
 
-| 成员                  | 说明       |
-|---------------------|----------|
-| `Identifier`        | 服务唯一标识   |
-| `Name`              | 服务显示名称   |
-| `SupportAsyncStart` | 是否支持异步启动 |
-| `StartAsync()`      | 服务启动时调用  |
-| `StopAsync()`       | 服务停止时调用  |
+| 成员           | 说明             |
+|----------------|------------------|
+| `Identifier`   | 服务唯一标识     |
+| `Name`         | 服务显示名称     |
+| `SupportAsync` | 是否支持异步启动 |
+| `StartAsync()` | 服务启动时调用   |
+| `StopAsync()`  | 服务停止时调用   |
 
 `StartAsync()` 会在服务声明的起始状态被调用。除特殊情况外，一个服务在整个应用运行期间只会启动一次。
 
@@ -101,10 +108,10 @@ public sealed class MessageService : ILifecycleService
 
 ### 参数
 
-| 参数               | 说明      |
-|------------------|---------|
-| `LifecycleState` | 服务的起始状态 |
-| `Priority`       | 服务启动优先级 |
+| 名称         | 说明                                                                         |
+|--------------|------------------------------------------------------------------------------|
+| `startState` | 服务启动时对应的生命周期状态                                                 |
+| `Priority`   | 同一生命周期状态下的启动优先级；数值越大越先启动，非核心服务应避免使用极端值 |
 
 编译时，源生成器会扫描带有 `LifecycleService` 特性的服务类型，并将其记录到自动生成的生命周期注册文件中。运行时，生命周期系统会根据注册信息在对应状态初始化并启动服务。
 
@@ -113,7 +120,7 @@ public sealed class MessageService : ILifecycleService
 以下示例展示了一个直接实现 `ILifecycleService` 的生命周期服务。
 
 ```cs
-using PCL.Core.App;
+using PCL.Core.App.IoC;
 
 namespace PCL.Core.Native;
 
@@ -124,7 +131,7 @@ public sealed class MessageService : ILifecycleService
 
     public string Name => "消息服务";
 
-    public bool SupportAsyncStart => true;
+    public bool SupportAsync => true;
 
     private static LifecycleContext? _context;
 
@@ -185,7 +192,7 @@ Context.DeclareStopped();
 `GeneralService` 是生命周期系统提供的便捷基类。若服务不需要继承其他类型，可以继承 `GeneralService` 以减少样板代码。
 
 ```cs
-using PCL.Core.App;
+using PCL.Core.App.IoC;
 
 namespace PCL.Core.Update;
 
@@ -220,16 +227,16 @@ public sealed class UpdateCheckService : GeneralService
 
 ### 构造参数
 
-| 参数           | 说明                   |
-|--------------|----------------------|
-| `identifier` | 服务唯一标识               |
-| `name`       | 服务显示名称               |
+| 参数         | 说明                              |
+|--------------|-----------------------------------|
+| `identifier` | 服务唯一标识                      |
+| `name`       | 服务显示名称                      |
 | `asyncStart` | 是否支持异步启动，默认值为 `true` |
 
 ### 可重写成员
 
-| 成员        | 说明     |
-|-----------|--------|
+| 成员      | 说明         |
+|-----------|--------------|
 | `Start()` | 服务启动逻辑 |
 | `Stop()`  | 服务停止逻辑 |
 
@@ -239,11 +246,11 @@ public sealed class UpdateCheckService : GeneralService
 
 生命周期服务的运行行为由生命周期系统统一管理。
 
-| 阶段  | 行为                                |
-|-----|-----------------------------------|
+| 阶段   | 行为                                           |
+|--------|------------------------------------------------|
 | 编译期 | 源生成器收集带有 `LifecycleService` 特性的服务 |
-| 运行期 | 应用进入指定生命周期状态时启动对应服务               |
-| 退出期 | 应用退出时停止仍处于活动状态的服务                 |
+| 运行期 | 应用进入指定生命周期状态时启动对应服务         |
+| 退出期 | 应用退出时停止仍处于活动状态的服务             |
 
 `StartAsync()` 或 `Start()` 通常只会在服务起始状态被调用一次。
 
@@ -288,7 +295,7 @@ public sealed class RegisterRpc(string name) : Attribute;
 
 该声明表示：
 
-| 依赖键            | 目标类型       | 收集类型          |
+| 依赖键         | 目标类型   | 收集类型      |
 |----------------|------------|---------------|
 | `rpc-function` | `Method`   | `RpcFunction` |
 | `rpc-property` | `Property` | `string`      |
@@ -322,10 +329,10 @@ public sealed partial class RpcService
 
 ### 参数
 
-| 参数   | 说明                              |
-|------|---------------------------------|
-| 依赖键  | 与 `DependencyCollector` 中声明的键对应 |
-| 目标类型 | 指定收集方法、属性或其他成员类型                |
+| 参数     | 说明                                    |
+|----------|-----------------------------------------|
+| 依赖键   | 与 `DependencyCollector` 中声明的键对应 |
+| 目标类型 | 指定收集方法、属性或其他成员类型        |
 
 源生成器会在编译时收集匹配的依赖项，并在生命周期服务初始化时传入对应的注入入口方法。
 
@@ -346,10 +353,10 @@ public static RpcResponse Activate(string? argument, string? content, bool inden
 
 上方示例中：
 
-| 成员         | 目标类型 | 收集结果                     |
-|------------|------|--------------------------|
-| `Username` | 属性   | 被收集到 `rpc-property` 依赖集合 |
-| `Activate` | 方法   | 被收集到 `rpc-function` 依赖集合 |
+| 成员       | 目标类型 | 收集结果                         |
+|------------|----------|----------------------------------|
+| `Username` | 属性     | 被收集到 `rpc-property` 依赖集合 |
+| `Activate` | 方法     | 被收集到 `rpc-function` 依赖集合 |
 
 依赖提供方只负责声明“哪些成员可以被收集”，依赖消费方只负责标记“自身需要被收集”。实际收集和注入过程由源生成器自动完成。
 
@@ -357,33 +364,33 @@ public static RpcResponse Activate(string? argument, string? content, bool inden
 
 ### 生命周期核心类型
 
-| API                 | 说明         |
-|---------------------|------------|
-| `LifecycleState`    | 生命周期状态枚举   |
-| `ILifecycleService` | 生命周期服务接口   |
+| API                 | 说明                 |
+|---------------------|----------------------|
+| `LifecycleState`    | 生命周期状态枚举     |
+| `ILifecycleService` | 生命周期服务接口     |
 | `LifecycleService`  | 生命周期服务声明特性 |
-| `LifecycleContext`  | 生命周期服务上下文  |
+| `LifecycleContext`  | 生命周期服务上下文   |
 | `Lifecycle`         | 生命周期系统访问入口 |
 | `GeneralService`    | 生命周期服务便捷基类 |
 
 ### 作用域与依赖注入相关类型
 
-| API                            | 说明          |
-|--------------------------------|-------------|
+| API                            | 说明                   |
+|--------------------------------|------------------------|
 | `LifecycleScope`               | 声明生命周期服务作用域 |
-| `DependencyCollector`          | 声明依赖收集规则    |
-| `LifecycleDependencyInjection` | 声明依赖注入入口    |
-| `PropertyAccessor<T>`          | 属性依赖访问器     |
+| `DependencyCollector`          | 声明依赖收集规则       |
+| `LifecycleDependencyInjection` | 声明依赖注入入口       |
+| `PropertyAccessor<T>`          | 属性依赖访问器         |
 
 ## 使用建议
 
-* 生命周期服务应保持职责单一，不应将多个无关模块塞入同一个服务。
-* 服务起始状态应选择实际需要的最晚阶段，避免过早初始化。
-* 长生命周期资源应在停止逻辑中释放。
-* 若服务已主动完成并不需要退出清理，可通过上下文声明自身已停止。
-* 对外公开的服务 API 应保持稳定，避免让调用方依赖生命周期内部细节。
-* 使用基于作用域的服务声明前，应先理解标准生命周期服务的生成目标和运行模型。
-* 使用依赖注入机制时，应保证依赖键命名清晰，避免多个功能复用含义不同的同一键名。
+* 生命周期服务应保持职责单一，不应将多个无关模块塞入同一个服务
+* 服务起始状态应选择实际需要的最晚阶段，避免过早初始化
+* 长生命周期资源应在停止逻辑中释放
+* 若服务已主动完成并不需要退出清理，可通过上下文声明自身已停止
+* 对外公开的服务 API 应保持稳定，避免让调用方依赖生命周期内部细节
+* 使用基于作用域的服务声明前，应先理解标准生命周期服务的生成目标和运行模型
+* 使用依赖注入机制时，应保证依赖键命名清晰，避免多个功能复用含义不同的同一键名
 
 ## 后续参考
 

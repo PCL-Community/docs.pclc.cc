@@ -13,7 +13,7 @@ The configuration system binds configuration items to C# properties through sour
 The configuration system mainly includes the following concepts:
 
 | Concept              | Description                                                                                                                        |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------|
 | Configuration item   | A single readable and writable configuration value, declared by `ConfigItem<T>` or `AnyConfigItem<T>`                              |
 | Configuration group  | A collection of multiple configuration items or child configuration groups, declared by `ConfigGroup`                              |
 | Configuration source | The storage location of a configuration item, such as globally shared configuration or local configuration                         |
@@ -24,12 +24,14 @@ The configuration system mainly includes the following concepts:
 
 Configuration items specify their storage location through `ConfigSource`.
 
-The configuration sources covered in this document include:
+The available configuration sources are:
 
-| Value                 | Description                   |
-| --------------------- | ----------------------------- |
-| `ConfigSource.Shared` | Globally shared configuration |
-| `ConfigSource.Local`  | Local configuration           |
+| Value                        | Description                             |
+|------------------------------|-----------------------------------------|
+| `ConfigSource.Shared`        | Globally shared configuration           |
+| `ConfigSource.SharedEncrypt` | Encrypted globally shared configuration |
+| `ConfigSource.Local`         | Local configuration                     |
+| `ConfigSource.GameInstance`  | Game instance-specific configuration    |
 
 The third parameter of `ConfigItem<T>` is used to specify the configuration source. If this parameter is omitted, `ConfigSource.Shared` is used by default.
 
@@ -66,7 +68,7 @@ public static partial int SomeConfig { get; set; }
 Configuration item declarations can be written in any top-level `partial` class.
 
 ::: note Note
-To improve maintainability, most configuration items should be declared uniformly in the `App\Config.cs` file.
+To improve maintainability, most configuration items should be declared in `PCL.Core/App/Config.cs`.
 :::
 
 ### Type Support
@@ -89,7 +91,7 @@ Unlike `ConfigItem<T>`, `AnyConfigItem<T>` does not accept a default value param
 Therefore, when using `AnyConfigItem<T>`, type `T` must meet the following conditions:
 
 * It has a public parameterless constructor;
-* It can be correctly serialized and deserialized by the underlying Provider;
+* It can be serialized and deserialized by the underlying Provider;
 * It can be recognized and handled by the current NTraffic implementation.
 
 If type `T` does not have a public parameterless constructor, compilation will fail.
@@ -142,7 +144,7 @@ Common operations include:
 | `SetValue(...)` | Sets the configuration value, optionally with context arguments         |
 
 ::: note Note
-Reading and writing configuration items costs more than ordinary property access, especially for encrypted configuration items. If a real-time value is not required, cache the read result to avoid frequent access. If you need to respond to configuration changes, it is recommended to use the event mechanism instead of repeatedly reading the configuration through polling.
+Reading and writing configuration items is more expensive than accessing ordinary properties, especially for encrypted items. If a value does not need to be read in real time, cache it instead of accessing the configuration item repeatedly. To respond to configuration changes, use the event mechanism rather than polling.
 :::
 
 ## Using Context Arguments
@@ -252,6 +254,23 @@ The configuration system supports triggering events when configuration items are
 
 Configuration item instances provide `Observe` and `Unobserve` methods for directly managing event listeners.
 
+### `ConfigEvent`
+
+`ConfigEvent` represents the event trigger type and can combine multiple values with `|`.
+
+| Value          | Description                                           |
+|----------------|-------------------------------------------------------|
+| `Init`         | Raised once during application initialization         |
+| `Get`          | Raised when the configuration value is read           |
+| `Set`          | Raised when a value is set                            |
+| `Reset`        | Raised when a value is reset                          |
+| `CheckDefault` | Raised when checking whether the value is the default |
+| `None`         | Reserved value; does not represent an event           |
+| `Read`         | All read events: `Get \| CheckDefault`                |
+| `Update`       | All update events: `Set \| Reset`                     |
+| `Changed`      | Initialization and update events: `Init \| Update`    |
+| `All`          | All events: `Read \| Changed`                         |
+
 In addition, events can also be registered using the `RegisterConfigEvent` annotation. This annotation should be applied to a public static property of type `ConfigEventRegistry`.
 
 ```cs
@@ -270,10 +289,10 @@ public static ConfigEventRegistry SomeConfigChanged => new(
 ### `ConfigEventRegistry` Parameters
 
 | Parameter   | Description                                                                                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+|-------------|---------------------------------------------------------------------------------------------------------------------------|
 | `scope`     | The event scope, which can be a configuration item, a configuration group, or any instance that implements `IConfigScope` |
-| `trigger`   | The event trigger type, such as `ConfigEvent.Changed`                                                                     |
 | `handler`   | The event handler function                                                                                                |
+| `trigger`   | The event trigger type, such as `ConfigEvent.Changed`                                                                     |
 | `isPreview` | Whether this is a preview-phase event                                                                                     |
 
 The exact event types, event argument structures, and trigger timing are subject to the code documentation.
@@ -332,8 +351,6 @@ Therefore, the following principles should be followed:
 
 The following content still needs to be supplemented together with code documentation:
 
-* The complete enum values of `ConfigEvent`;
 * Parameter details of `ConfigEventRegistry`;
 * The complete method list of `ConfigItem`;
-* The complete enum values of `ConfigSource`;
 * Differences in type serialization support among different Providers.

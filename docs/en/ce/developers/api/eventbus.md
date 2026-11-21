@@ -126,6 +126,8 @@ IDisposable subscription =
     );
 ```
 
+Object subscription also accepts `disposeOwnerOnUnsubscribe`, which defaults to `false`. When set to `true`, disposing the subscription also calls `Dispose()` on the handler if it implements `IDisposable` and no other object subscription in the same channel references that instance. This check only considers subscriptions in the current channel.
+
 #### Delegate Subscription
 
 ```cs
@@ -201,6 +203,8 @@ EventBusService.AddChannel("channel-name");
 
 You usually do not need to create channels manually, because `Subscribe` automatically creates a channel if it does not exist. Explicit channel creation is suitable for scenarios where a channel needs to be initialized in advance, or where the existence of the channel needs to be expressed.
 
+Returns `true` if the channel was created. Returns `false` if the name is empty or contains only whitespace, or if a channel with that name already exists.
+
 ### `RemoveChannel`
 
 Removes the specified channel.
@@ -210,6 +214,8 @@ EventBusService.RemoveChannel("channel-name");
 ```
 
 When a channel is removed, all subscribers in that channel are also cleared.
+
+Returns `true` if the channel existed and was removed; otherwise, returns `false`.
 
 ## Channels
 

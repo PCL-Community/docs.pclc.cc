@@ -6,44 +6,49 @@ order: 2
 
 This article introduces the basic workflow for setting up a local development environment for PCL Community Edition, submitting changes, and opening a Pull Request. After completing the setup described in this article, you should be able to clone the repository locally, build the project, develop changes, and submit them to GitHub.
 
-If you are already familiar with Git, .NET desktop development, and the GitHub Pull Request workflow, you may focus on the “Basic Environment Requirements”, “Initialize the Solution”, and “Open a Pull Request” sections.
+If you are already familiar with Git, .NET development, and the GitHub Pull Request workflow, you may focus on the “Basic Environment Requirements”, “Initialize the Solution”, and “Open a Pull Request” sections.
 
 ::: warning System Requirements
-PCL CE targets .NET 10 Desktop. Running and debugging it requires Windows 10 Version 1607 or later. This article assumes that you are developing on a relatively recent Windows system.
+PCL CE targets .NET 10 and uses Avalonia for its user interface. It supports Windows, Linux, and macOS, but the supported versions and desktop requirements vary by platform:
 
-If you use Linux, macOS, or an older version of Windows, please configure a Windows virtual machine for debugging, or upgrade to a supported system version.
+* **Windows:** Windows 10 version 1809 (build 17763) or later, or Windows 11. .NET 10 officially supports Windows 10 version 1809 only on Enterprise or ESU editions;
+* **Linux:** Common glibc-based desktop distributions. X11 is used by default; Wayland support is experimental;
+* **macOS:** macOS 12 or later.
 
-.NET supports cross-platform cross-compilation, so Linux / macOS users may develop with Rider and debug through a Windows virtual machine.
+For supported architectures, distribution details, and support levels, see the **Supported Platforms** section in the [PCL-CE repository README](https://github.com/PCL-Community/PCL-CE/blob/main/README-EN.md).
+:::
+
+Commands in this article should be run in a terminal for the platform in use. On Windows, use PowerShell or Git Bash; on Linux and macOS, use the system terminal.
+
+::: tip Network Environment
+Development requires access to GitHub and NuGet Gallery. Connections to these services may be unstable from mainland China, so use a reliable network connection to reduce failures when cloning the repository, restoring NuGet packages, or pushing changes.
+
+NuGet packages can also be restored through the [Huawei Cloud NuGet mirror](https://mirrors.huaweicloud.com/mirrorDetail/5ebf85de07b41baf6d0882ab?mirrorName=nuget&catalog=language). If package restoration fails, check the network connection first.
 :::
 
 ## 1. Before You Start
 
-Before setting up the environment, it is recommended to first confirm what type of changes you intend to make.
+Before setting up the environment, identify the type of changes you plan to make.
 
 If you are only fixing documentation, adjusting configuration, or modifying a small amount of text, you usually only need to understand the basic Git commit workflow.
 
 If you plan to modify business logic, UI behavior, core library functionality, or source generators, you need to complete a local build and perform basic testing before submitting your changes.
 
-During development, please follow the [Technical Guidelines](./guidelines) and
-the [Generative Artificial Intelligence Usage Policy](./ai-policy). The Technical Guidelines cover
-naming conventions, code style, and commit message conventions; requirements for AI tool usage are
-set out in the policy. This article will not repeat them in detail.
+During development, follow the [Technical Guidelines](./guidelines) and the [Generative Artificial Intelligence Usage Policy](./ai-policy). The Technical Guidelines cover naming conventions, code style, and commit message conventions. Requirements for AI tool usage are set out in the policy and are not repeated here.
 
 ## 2. Basic Environment Requirements
 
 This section lists the basic tools required for project development. If you are not familiar with these tools, you can continue reading the configuration instructions in the following sections.
 
-| Type                                     | Requirement                                                           |
-|------------------------------------------|-----------------------------------------------------------------------|
-| Version control tools                    | `Git`, and `GPG` or `SSH` for commit signing                          |
-| SDK toolchain                            | `.NET SDK 11.0` or later                                              |
-| Runtime                                  | `.NET Desktop Runtime 10.0`                                            |
+| Type                                     | Requirement                                                         |
+|------------------------------------------|---------------------------------------------------------------------|
+| Version control tools                    | `Git`, and `GPG` or `SSH` for commit signing                        |
+| SDK toolchain                            | `.NET SDK 11.0` or later                                            |
+| Runtime                                  | `.NET 10 Runtime`                                                   |
 | Integrated development environment (IDE) | `JetBrains Rider 2026.3` or later, or `Visual Studio 2026` or later |
 
 ::: info Note
-The SDK version should be equal to or higher than the version listed in the table.
-
-The Runtime version is the fixed version required by the project. Please use the version specified in the table. A higher or lower version may not satisfy the project’s runtime requirements.
+The SDK and runtime serve different purposes: use .NET SDK 11.0 or later to build the solution, and install .NET 10 Runtime to run PCL CE. The SDK does not replace the required runtime.
 :::
 
 ::: tip IDE Recommendation
@@ -52,40 +57,81 @@ Rider is recommended for development. If you use Visual Studio, please check you
 
 ## 3. Install and Configure Git
 
-Visit the [official Git website](https://git-scm.com/), select **Download for Windows**, download the installer, and run it.
+Git installation differs by platform. Follow the instructions for your operating system, then configure your user name and email.
 
-If you are not sure what the installer options mean, you can keep the default options. You can also install Git through winget with the following command:
+### Windows
 
-```cmd
+Visit the [official Git website](https://git-scm.com/), select **Download for Windows**, download the installer, and run it. If you are unsure about the installer options, keep the default settings.
+
+You can also install Git through winget:
+
+```powershell
 winget install git
 ```
 
-However, winget may use the default configuration directly, and it may not install Git Credential Manager. Unless you have special requirements, it is recommended to use the official installer first.
+Depending on the package configuration, this method may not install Git Credential Manager. If you need Git Credential Manager, use the official installer.
 
-After installation, configure your Git username and email:
+### Linux
 
-```cmd
+Use your distribution's package manager to install Git. The following commands cover common distributions:
+
+```bash
+# Debian / Ubuntu
+sudo apt install git openssh-client
+
+# Fedora
+sudo dnf install git openssh-clients
+
+# Arch Linux
+sudo pacman -S git openssh
+```
+
+If your distribution provides an outdated package, refer to the [official Git downloads page](https://git-scm.com/downloads) for other installation methods.
+
+### macOS
+
+You can install Git through Xcode Command Line Tools or Homebrew.
+
+To install Xcode Command Line Tools:
+
+```bash
+xcode-select --install
+```
+
+If Homebrew is already installed, you can use:
+
+```bash
+brew install git
+```
+
+### Configure User Name and Email
+
+After installing Git, configure your user name and email:
+
+```bash
 git config --global user.email your-email
 git config --global user.name your-name
 ```
 
 ::: info Email Configuration
-It is recommended that `user.name` match your GitHub username as closely as possible, so maintainers can easily identify the source of your commits.
+Use an email address verified in your GitHub account for `user.email`; otherwise, GitHub may not associate your commits with your account. Email verification is separate from the SSH or GPG signature requirement.
 
-`user.email` must be an email address verified in your GitHub account. Otherwise, commit signing or identity verification may not work correctly.
+It is also recommended that `user.name` match your GitHub username so maintainers can identify the source of your commits.
 :::
 
 ::: tip Push Rejected?
-If GitHub rejects your command-line push, check whether **Block command line pushes that expose my email** is unchecked at the bottom of the [GitHub email settings page](https://github.com/settings/emails).
+If GitHub rejects a push because the commit exposes your email address, configure `user.email` to use the GitHub-provided noreply address. You can find it on the [GitHub email settings page](https://github.com/settings/emails). If you intentionally want to allow pushes that expose your email, you can change **Block command line pushes that expose my email** on that page.
 
-Submitting code through the GitHub Web Editor is not recommended. If you do need to edit online, you can use the [web version of VS Code provided by GitHub](https://github.dev/PCL-Community/PCL-CE), and replace `PCL-Community` in the URL with your own username.
+Submitting code through the GitHub Web Editor is not recommended. If you need to edit online, use the [GitHub web version of VS Code](https://github.dev/PCL-Community/PCL-CE), replacing `PCL-Community` in the URL with your own username.
 :::
 
 ## 4. Install the SDK and Development Environment
 
-PCL CE depends on the .NET desktop development toolchain. The simplest way to install the required components is through Visual Studio Installer.
+PCL CE targets .NET 10 and requires .NET SDK 11.0 or later for development. On Windows, you can install the toolchain through Visual Studio Installer. On Linux and macOS, install the SDK directly.
 
-Click the following link to download the Visual Studio installer:
+### Windows
+
+Download the Visual Studio installer from the following link:
 
 [Download the Visual Studio installer](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Stable&version=VS18)
 
@@ -95,302 +141,308 @@ If you do not plan to install the Visual Studio IDE, you can download the Build 
 
 After the download is complete, run the installer. The installer will first configure Visual Studio Installer, and then automatically open the workload selection page.
 
-In the workload list, select **.NET desktop development**, then click **Install** in the lower-right corner. After the installation is complete, your system should have the basic toolchain required to build and run PCL CE.
+Select **.NET desktop development** in the workload list, then click **Install** in the lower right corner. After installation, the system should have the basic toolchain required to build and run PCL CE.
+
+### Linux
+
+Install .NET SDK 11.0 or later through the official .NET installation script or your distribution's package manager. For specific commands, refer to the [official .NET installation documentation](https://learn.microsoft.com/dotnet/core/install/linux).
+
+After installation, run the following command in the terminal to verify the SDK version:
+
+```bash
+dotnet --version
+```
+
+If Avalonia reports missing X11, fonts, or other desktop libraries at startup, install the corresponding dependencies for your distribution. PCL CE uses X11 by default. To try native Wayland, set `PCL_USE_WAYLAND=1` and install `libwayland-client` and `libxkbcommon`. If Wayland initialization fails, the application falls back to X11.
+
+### macOS
+
+Install .NET SDK 11.0 or later from the [official .NET download page](https://dotnet.microsoft.com/download), or use Homebrew:
+
+```bash
+brew install --cask dotnet-sdk
+```
+
+### Choose an IDE
+
+Rider is recommended for development. Rider supports Windows, Linux, and macOS and can open the solution file in the repository root directly.
+
+If you use Visual Studio, check your diff before submitting to avoid committing unrelated changes automatically generated by the IDE. Visual Studio is only available on Windows.
 
 ## 5. Configure Git Commit Signing
 
 ::: info Signing Requirement
-The PCL CE repository requires all commits in PRs to have verified signatures. Therefore, you need to configure commit signing locally and add the corresponding public key to your GitHub account.
+The PCL CE repository requires all commits in a PR to have verified signatures. Therefore, you need to configure commit signing locally and add the corresponding public key to your GitHub account.
 
-This article introduces SSH signing, which is relatively simple to configure. If you prefer to use GPG signing, please refer to the [GPG Signing Configuration Guide](./gpg-signing).
+This article describes SSH signing, which is relatively simple to configure. If you prefer GPG signing, see the [GPG Signing Guide](./gpg-signing).
 :::
 
 ### Generate or Confirm an SSH Key
 
-If your user directory already contains a `.ssh` directory, and it contains files such as `id_rsa` or `id_ed25519`, you can use an existing key directly.
+If your user directory already contains a `.ssh` directory with a usable key pair, such as `id_ed25519` and `id_ed25519.pub`, you can reuse it.
 
-If no usable key exists, run the following command to generate a new SSH key pair:
+If no key is available, run the following command to generate a new SSH key pair:
 
-```cmd
+```bash
 ssh-keygen -t ed25519 -C "your-email"
 ```
 
-The command will prompt you to enter a save location, a passphrase, and the passphrase again. If you do not need custom settings, press Enter to use the defaults.
+The command prompts for the save location, passphrase, and passphrase confirmation. If you do not need customization, press Enter to use the defaults.
 
-If you set a passphrase for the key, the terminal usually will not display any characters while you type it. This is normal.
+If you set a passphrase, the terminal usually does not display any characters while you type. This is normal.
 
 ### Configure Git to Use SSH Signing
 
-Run the following commands to tell Git to use SSH as the signing format:
+Run the following commands to make Git use SSH as the signing format:
 
-```cmd
+```bash
 git config --global gpg.format ssh
-git config --global user.signingkey "public-key-file-path"
+git config --global user.signingkey "path-to-public-key"
 git config --global commit.gpgsign true
 ```
 
-Here, `user.signingkey` should be the path to the public key file. On Windows, it is recommended to use an absolute path, for example:
+`user.signingkey` should be the path to the public key file. Common paths for different platforms are as follows:
 
-```text
-C:\Users\username\.ssh\id_ed25519.pub
-```
+| Platform | Public Key Path Example                         |
+|----------|-------------------------------------------------|
+| Windows  | `C:\Users\username\.ssh\id_ed25519.pub`       |
+| Linux    | `/home/username/.ssh/id_ed25519.pub`             |
+| macOS    | `/Users/username/.ssh/id_ed25519.pub`            |
 
-If you do not want Git to automatically sign every commit, you can skip the third command. However, you will then need to manually add the `-S` parameter when committing, or enable signing separately in the Git tool you use.
+Use an absolute path on every platform. If you do not want Git to sign every commit automatically, skip the third command. You will then need to add the `-S` argument when committing or enable signing in your Git client.
 
 ::: tip Quickly Get the Path
-In the `.ssh` directory, you can hold Shift and right-click the public key file, then select “Copy as path” to quickly obtain the absolute path to the public key file.
+On Windows, you can hold Shift and right-click the public key file in the `.ssh` directory, then choose “Copy as path” to get the absolute path quickly.
+
+On Linux and macOS, you can enter the `.ssh` directory in the terminal, run `pwd`, and append the file name to the path.
 :::
 
 ::: warning Note
 Make sure to use the public key file with the `.pub` extension, not the private key file without an extension.
 
-Also confirm again that the email configured in Git matches any verified email address in your GitHub account. Otherwise, your commits may be shown as `Unverified`.
+Also confirm again that the email configured in Git matches any verified email in your GitHub account. Otherwise, the commit may be shown as `Unverified`.
 :::
 
 ### Add the Signing Public Key to GitHub
 
-Open the [GitHub SSH and GPG keys](https://github.com/settings/keys) settings page, then click **New SSH key** in the upper-right corner.
+Open the [GitHub SSH and GPG keys](https://github.com/settings/keys) settings page and click **New SSH key** in the upper right corner.
 
-Fill in the fields as follows:
+When filling in the form, note the following:
 
-| Field      | Value                                                        |
-|------------|--------------------------------------------------------------|
-| `Title`    | A custom name, such as `PCL CE Signing Key`                  |
-| `Key type` | Select `Signing Key`                                         |
-| `Key`      | Enter the contents of the public key file you just generated |
+| Field      | Value                              |
+|------------|------------------------------------|
+| `Title`    | A custom name, for example `PCL CE Signing Key` |
+| `Key type` | Select `Signing Key`               |
+| `Key`      | Paste the complete contents of the public key file generated above |
 
-You can right-click the public key file and select “Edit” to open it, then copy its entire contents.
+You can open the public key file with a text editor and copy its complete contents.
 
-After filling in the fields, click **Add SSH key** to add it to your GitHub account.
+After filling in the form, click **Add SSH key** to add it to your GitHub account.
 
 ## 6. Prepare the Local Repository
 
 ::: tip Repository Choice
 If you are a community member, you can clone the community repository directly.
 
-If you are an external developer, please fork this repository to your personal or organization account first, then clone the fork under your own account. This makes it easier to submit PRs later.
+If you are an external developer, first fork this repository to your personal or organization account, then clone the fork under your own account. This makes it easier to submit PRs later.
 :::
 
-It is recommended to first create a dedicated directory for project code, for example:
+Create a directory dedicated to project code. For example, on Windows you can use:
 
 ```text
 C:\Projects
 ```
 
+On Linux or macOS, you can use:
+
+```text
+~/Projects
+```
+
 Then clone the repository in that directory.
 
-If you are a community member, you can clone the main repository directly:
+If you are a community member, clone the main repository directly:
 
-```cmd
+```bash
 git clone https://github.com/PCL-Community/PCL-CE
 ```
 
-If you are an external developer, replace the URL with the address of your own fork:
+If you are an external developer, replace the address with your own fork:
 
-```cmd
+```bash
 git clone https://github.com/your-username/PCL-CE
 ```
 
-After cloning is complete, enter the repository directory:
+After cloning, enter the repository directory:
 
-```cmd
+```bash
 cd PCL-CE
 ```
 
 ## 7. Initialize the Solution
 
 ::: info IDE Language
-It is recommended to set the IDE interface language to English. This makes it easier to look up information, communicate issues, and compare menu names with those used in this article.
+It is recommended to set the IDE interface language to English. This makes it easier to consult documentation, communicate about issues, and match the menu names in this article.
 
-When IDE options are mentioned in this article, their English names will be used first. If you use a Chinese interface, please refer to the corresponding translations yourself.
+When this article refers to IDE options, English names are used first. If you use a Chinese interface, compare the translations yourself.
 :::
 
-Run the following command in the repository root directory:
+Run the following command in the repository root:
 
-```cmd
+```bash
 dotnet build
 ```
 
-This command is used to test whether the development environment is available, and to initialize the project file structure and source generators.
+This command tests whether the development environment is available and initializes the project file structure and source generators.
 
-If the build completes without errors, your development environment is basically ready, and you can begin development.
+If the build completes without errors, the development environment is ready. Run the test project as well:
 
-If the build fails, please carefully read the error message first and check whether any of the following issues exist:
+```bash
+dotnet test PCL.Core.Test/PCL.Core.Test.csproj -c CI -p:Platform=AnyCPU
+```
+
+If the build fails, read the error message carefully and check for the following issues:
 
 * The .NET SDK or Runtime version does not meet the requirements;
-* Visual Studio / Build Tools components are missing;
-* NuGet package restoration failed;
-* The network environment cannot access GitHub or NuGet Gallery;
-* The local repository code is incomplete, or the branch state is abnormal.
+* Visual Studio or Build Tools components are missing on Windows;
+* NuGet package restoration fails;
+* The network cannot access GitHub or NuGet Gallery;
+* The local repository is incomplete or the branch state is abnormal.
 
-If you have confirmed that there is no problem with your local environment but the project still cannot be built, a recent commit may have introduced a breaking change. In this case, you can wait for upstream updates, or discuss the issue in the community developer QQ group.
+If the build still fails after you have checked the local environment, review the latest changes on your branch. When asking for help in the community developer group, include the full error output, your branch name, and the commit hash.
 
 ## 8. Basic Project Structure
 
-PCL Community Edition is built on a Visual Studio solution (`.slnx`). The entire repository corresponds to one solution, which contains multiple projects.
+PCL Community Edition is built from the solution file (`PCL Community Edition.slnx`) in the repository root. The solution contains the following projects:
 
-### Plain Craft Launcher 2
+| Project                     | Description                                                                                                                             |
+|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `PCL.Launcher`              | Avalonia UI layer and application composition root. Contains pages, view models, and the startup flow.                                  |
+| `PCL.Launcher.Core`         | Launcher business logic, including the launch chain, loading system, and Minecraft-related workflows.                                   |
+| `PCL.Core`                  | Core library for configuration, lifecycle management, the event bus, localization, platform abstractions, and common utilities.         |
+| `PCL.Core.UI`               | Avalonia UI adapter. Provides UI services such as thread dispatching, clipboard access, dialogs, theming, and localization integration. |
+| `PCL.Core.SourceGenerators` | Source generators for configuration items, lifecycle services, localized properties, and other compile-time code generation.            |
+| `PCL.Core.Test`             | Test project containing automated tests for the core library and related components.                                                    |
+| `PCL.Platform`              | Platform-specific service implementations for Windows, Linux, and macOS.                                                                |
+| `PCL.Localization`          | Language resources and a framework-independent localization catalog.                                                                    |
 
-The main launcher project, containing most of the program logic.
+Project references follow these rules:
 
-This project currently includes, but is not limited to, the following:
+* `PCL.Launcher` references `PCL.Core.UI`, `PCL.Launcher.Core`, and `PCL.Platform`;
+* `PCL.Launcher.Core`, `PCL.Core.UI`, and `PCL.Platform` reference `PCL.Core`;
+* `PCL.Core` and `PCL.Launcher` use `PCL.Core.SourceGenerators` as analyzers;
+* `PCL.Core` does not depend on Avalonia or the launcher projects;
+* `PCL.Core` and `PCL.Launcher.Core` do not reference the platform-specific implementations in `PCL.Platform`.
 
-* User interface;
-* Minecraft-related management tools;
-* Account authentication;
-* Main launcher workflow;
-* Other user-facing features.
-
-### PCL.Core
-
-The core library of the Community Edition, containing new logic and core functionality implemented for PCL CE.
-
-Project references are one-way: the main launcher project can reference the core library, but the core library cannot reference the main launcher project in reverse.
-
-The core library is currently divided into different directories and namespaces by purpose. When adding new content, please place it in an existing category first. Only consider creating a new directory structure if the new content does not belong to any existing category at all.
-
-### PCL.Core.SourceGenerators
-
-The source generator project used by the core library.
-
-If you need to modify configuration item generation, utility code generation, or other compile-time generation logic, you will usually need to check this project.
-
-### PCL.Core.Test
-
-The core library test project, used to check whether some implementations in the core library are correct.
-
-If you add a core library utility, algorithm, or relatively independent logic, it is recommended to add corresponding tests in this project.
+The core library is organized into directories and namespaces by purpose. When adding code, prefer an existing category. Create a new directory only when the code does not fit any existing category.
 
 ## 9. Start Development
 
 After completing the local build, you can modify the code as needed.
 
-During development, please pay attention to the following:
+During development, note the following:
 
-* Before starting development, it is recommended to create a new branch from the latest code;
-* Each branch should handle only one issue or one category of changes as much as possible;
-* When modifying existing files, minimize diffs unrelated to the current change;
-* Code related to business logic should be basically tested locally before submission;
-* For code style, naming, and commit messages, please refer to
-  the [Technical Guidelines](guidelines.md). For AI tool usage requirements, please refer to
-  the [Generative Artificial Intelligence Usage Policy](ai-policy.md).
+* Create a new branch from the latest code before starting development;
+* Keep each branch focused on one issue or one type of change;
+* Minimize diffs unrelated to the current change when editing existing files;
+* Complete basic local testing for business-logic changes before submitting;
+* For platform-specific changes, build and verify the changes on the target platform;
+* Follow the [Technical Guidelines](./guidelines) for code style, naming, and commit messages, and the [Generative Artificial Intelligence Usage Policy](./ai-policy) for AI tool usage.
 
-If you need to add tests, you can look for similar tests in `PCL.Core.Test` as references.
+If you need to add tests, look for similar tests in `PCL.Core.Test` as a reference.
 
-## 10. Pre-commit Checklist
+## 10. Pre-submission Checks
 
-Before committing, it is recommended to check at least the following:
+Before submitting, check at least the following:
 
-1. Whether the project can build normally.
-2. Whether the modified functionality can basically run.
-3. Whether there are file changes unrelated to the current modification.
-4. Whether temporary files, build artifacts, or local configuration files have been committed by mistake.
+1. Whether the solution builds successfully.
+2. Whether the modified functionality works as expected.
+3. Whether the diff contains unrelated file changes.
+4. Whether temporary files, build artifacts, or local configuration were committed by mistake.
 5. Whether all commits have verified signatures.
+6. Whether the test project has been run for changes involving the core library.
 
-You can use the following commands to view the current changes:
+Use the following commands to view the current changes:
 
-```cmd
+```bash
 git status
 git diff
 ```
 
-If you use an IDE or graphical Git tool, you should also check the diff file by file before committing.
+If you use an IDE or a graphical Git tool, check the diff file by file before submitting.
 
 ## 11. Commit and Push
 
 The exact way to commit and push code varies depending on the Git tool you use. You can use the command line, Rider, Visual Studio, GitHub Desktop, or another Git client.
 
-If you have not configured automatic signing, you need to add the `-S` parameter when committing:
+If you have not configured automatic signing, add the `-S` argument when committing:
 
-```cmd
-git commit -S -m "fix(scope): fix an issue with a feature"
+```bash
+git commit -S -m "fix(scope): fix an issue"
 ```
 
-If automatic signing has already been configured, you can commit normally:
+If automatic signing is configured, commit normally:
 
-```cmd
-git commit -m "fix(scope): fix an issue with a feature"
+```bash
+git commit -m "fix(scope): fix an issue"
 ```
 
-For the commit message format, please refer to the commit message convention in the [Technical Guidelines](./guidelines).
+For the commit message format, refer to the commit message conventions in the [Technical Guidelines](./guidelines).
 
 ::: tip Branch Recommendation
-It is recommended to submit changes in a new branch instead of developing directly on the default `dev` branch.
+It is recommended to commit changes in a new branch instead of developing directly on the default `dev` branch.
 
 For example:
 
-```cmd
+```bash
 git checkout -b fix/some-problem
 ```
 
-This can reduce conflicts when syncing upstream changes and opening a PR.
+This reduces conflicts when syncing upstream and opening a PR.
 :::
 
 After committing, push the branch to GitHub:
 
-```cmd
+```bash
 git push origin fix/some-problem
 ```
 
 ## 12. Open a Pull Request
 
-After your commits have been pushed to a branch in your GitHub repository, open the [Pull Requests](https://github.com/PCL-Community/PCL-CE/pulls) page and click **New pull request** to open a PR.
+After pushing your commits, open the [Pull Requests](https://github.com/PCL-Community/PCL-CE/pulls) page and click **New pull request**.
 
-When creating the PR, please confirm the following:
+The base branch is usually `dev`. Select the branch containing your changes as the compare branch. The PR title must follow the project's commit message conventions, and all commits in the PR must be signed.
 
-* The target branch on the left is usually `dev`;
-* The source branch on the right is the branch where you submitted your changes;
-* The PR title follows the commit message convention;
-* The PR description clearly explains the changes made.
+GitHub automatically loads the repository's [PR template](https://github.com/PCL-Community/PCL-CE/blob/dev/.github/PULL_REQUEST_TEMPLATE.md) when you create a PR. Complete each section based on the actual changes:
 
-It is recommended that the PR description include the following:
+| Template Section                         | What to Include                                                                                                                                                                                                                              |
+|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Summary                                  | Describe the purpose, implementation, and scope of the changes.                                                                                                                                                                              |
+| Related Issue                            | Link the relevant issue using a closing keyword such as `Closes #1234`. Leave this section empty if there is no related issue.                                                                                                               |
+| Verification                             | List the builds, tests, and manual checks you performed, along with the scenarios they cover. For example, `dotnet build`, `dotnet test PCL.Core.Test/PCL.Core.Test.csproj -c CI -p:Platform=AnyCPU`, or specific manual verification steps. |
+| Generative Artificial Intelligence Usage | Disclose AI usage accurately. Enter "Not used" if no AI was used. If AI was used, append the model identifier to the end of the PR title.                                                                                                    |
+| Checklist                                | Review each item and check it only after confirming that the requirement is satisfied.                                                                                                                                                       |
 
-```markdown
-## Changes
-
-- Fixed ...
-- Adjusted ...
-- Added ...
-
-## Testing
-
-- Ran `dotnet build`
-- Verified locally ...
-
-## Additional Notes
-
-- May affect ...
-- Needs to wait for ...
-```
-
-If the PR resolves an Issue, use a GitHub closing keyword in the PR description to link the Issue, for example:
-
-```text
-Close #270
-```
-
-GitHub will automatically close the corresponding Issue after the PR is merged.
+Write the PR description based on the actual changes and verify its accuracy before submission. Do not submit unverified AI-generated content.
 
 ::: warning Syncing Upstream Changes
-Before the PR is merged, if you need to sync upstream changes, do not use rebase or squash merge.
-
-Please use a regular merge to avoid rewriting commit history or affecting signature status.
+If you need to incorporate upstream changes into your branch before the PR is merged, use a regular merge instead of rebase or squash merge. This preserves the existing commit history and signature state.
 :::
 
-If you want community developers to see your PR sooner, you can request a review from `PCL-Community/CE-Dev`.
+If you would like the community developers to review your PR, you can request a review from `PCL-Community/CE-Dev`.
 
 ## 13. Wait for Review and Make Changes
 
-After submitting the PR, you need to wait for review by the community developers, namely the `PCL-Community/CE-Dev Team`.
+After submitting a PR, wait for review by community developers, namely the `PCL-Community/CE-Dev Team`.
 
-During the review process, maintainers may suggest changes. Please continue committing changes to the same branch according to the suggestions. The PR will update automatically.
+During review, maintainers may provide suggestions. Continue committing changes to the same branch according to the suggestions, and the PR will update automatically.
 
 ::: warning About the Resolve Button
-After addressing review comments, please do not click the Resolve button casually unless you are very sure that the issue has been fully resolved.
+After addressing review comments, do not click Resolve casually unless you are confident that the issue has been fully resolved.
 
-Resolving too early may affect the maintainer’s subsequent review. If you have explanations, questions, or additional notes, please reply directly under the corresponding comment.
+Resolving too early may affect subsequent review by maintainers. If you have explanations, questions, or additional notes, reply directly under the corresponding comment.
 :::
 
-After the PR passes review and meets the merge requirements, maintainers will merge it into the target branch.
+After the PR passes review and meets the merge conditions, maintainers will merge it into the target branch.
 
 Thank you for contributing to PCL CE!

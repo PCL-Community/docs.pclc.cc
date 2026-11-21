@@ -12,24 +12,26 @@ order: 3
 
 配置系统主要包含以下概念：
 
-| 概念    | 说明                                                  |
-|-------|-----------------------------------------------------|
-| 配置项   | 单个可读写的配置值，由 `ConfigItem<T>` 或 `AnyConfigItem<T>` 声明 |
-| 配置组   | 多个配置项或子配置组的集合，由 `ConfigGroup` 声明                    |
-| 配置源   | 配置项的存储位置，例如全局共享配置或本地配置                              |
-| 上下文参数 | 配置读写时附带的额外参数，用于区分不同上下文下的配置值                         |
-| 事件    | 配置项读取、写入或变更时触发的同步回调机制                               |
+| 概念       | 说明                                                              |
+|------------|-------------------------------------------------------------------|
+| 配置项     | 单个可读写的配置值，由 `ConfigItem<T>` 或 `AnyConfigItem<T>` 声明 |
+| 配置组     | 多个配置项或子配置组的集合，由 `ConfigGroup` 声明                 |
+| 配置源     | 配置项的存储位置，例如全局共享配置或本地配置                      |
+| 上下文参数 | 配置读写时附带的额外参数，用于区分不同上下文下的配置值            |
+| 事件       | 配置项读取、写入或变更时触发的同步回调机制                        |
 
 ## 配置源
 
 配置项通过 `ConfigSource` 指定存储位置。
 
-目前文档中涉及的配置源包括：
+目前定义的配置源如下：
 
-| 值                     | 说明     |
-|-----------------------|--------|
-| `ConfigSource.Shared` | 全局共享配置 |
-| `ConfigSource.Local`  | 本地配置   |
+| 值                           | 说明                 |
+|------------------------------|----------------------|
+| `ConfigSource.Shared`        | 全局共享配置         |
+| `ConfigSource.SharedEncrypt` | 加密的全局共享配置   |
+| `ConfigSource.Local`         | 本地配置             |
+| `ConfigSource.GameInstance`  | 与游戏实例关联的配置 |
 
 `ConfigItem<T>` 的第三个参数用于指定配置源。若省略该参数，则默认使用 `ConfigSource.Shared`。
 
@@ -65,15 +67,15 @@ public static partial int SomeConfig { get; set; }
 
 配置项声明可以写在任意顶层 `partial` 类中。
 
-::: note 提示 
-为了提高可维护性，绝大多数配置项应统一声明在 `App\Config.cs` 文件中。
+::: note 提示
+为了便于维护，绝大多数配置项应声明在 `PCL.Core/App/Config.cs` 中。
 :::
 
 ### 类型支持
 
 `ConfigItem<T>` 的类型参数 `T` 可以是任意类型，但实际可用类型取决于底层 Provider 与 NTraffic 的实现支持情况。
 
-目前 JSON 实现可以确定具有完整支持；YAML 实现的支持情况需以对应 Provider 实现为准。
+目前 JSON 实现可以确定具有完整支持。YAML 实现的支持情况需以对应 Provider 实现为准。
 
 ## 使用 `AnyConfigItem<T>`
 
@@ -142,7 +144,7 @@ item.Reset();
 | `SetValue(...)` | 设置配置值，可附带上下文参数 |
 
 ::: note 提示
-配置项的读取与写入成本高于普通属性访问，尤其是加密配置项。若不需要实时值，应缓存读取结果，避免频繁访问。若需要响应配置变更，推荐使用事件机制，而不是通过轮询反复读取配置。
+配置项的读写开销高于普通属性访问，尤其是加密配置项。若不需要实时获取最新值，应在调用方缓存读取结果，避免频繁访问。需要响应配置变更时，应使用事件机制，而不是通过轮询反复读取配置。
 :::
 
 ## 使用上下文参数
@@ -252,6 +254,23 @@ group.Item2 = false;
 
 配置项实例提供 `Observe` 与 `Unobserve` 方法，用于直接管理事件监听。
 
+### `ConfigEvent`
+
+`ConfigEvent` 表示事件触发类型，可以使用 `|` 组合多个值。
+
+| 值             | 说明                                   |
+|----------------|----------------------------------------|
+| `Init`         | 程序初始化时触发一次                   |
+| `Get`          | 读取配置值时触发                       |
+| `Set`          | 设置配置值时触发                       |
+| `Reset`        | 重置配置值时触发                       |
+| `CheckDefault` | 检查配置值是否为默认值时触发           |
+| `None`         | 保留值，不表示任何事件                 |
+| `Read`         | 所有读取事件，即 `Get \| CheckDefault` |
+| `Update`       | 所有更新事件，即 `Set \| Reset`        |
+| `Changed`      | 初始化与更新事件，即 `Init \| Update`  |
+| `All`          | 所有事件，即 `Read \| Changed`         |
+
 除此之外，也可以使用 `RegisterConfigEvent` 注解注册事件。该注解应标记在类型为 `ConfigEventRegistry` 的公共静态属性上。
 
 ```cs
@@ -269,12 +288,12 @@ public static ConfigEventRegistry SomeConfigChanged => new(
 
 ### `ConfigEventRegistry` 参数
 
-| 参数          | 说明                                        |
-|-------------|-------------------------------------------|
+| 参数        | 说明                                                               |
+|-------------|--------------------------------------------------------------------|
 | `scope`     | 事件作用域，可以是配置项、配置组，或任意实现 `IConfigScope` 的实例 |
-| `trigger`   | 事件触发类型，例如 `ConfigEvent.Changed`           |
-| `handler`   | 事件处理函数                                    |
-| `isPreview` | 是否为预览阶段事件                                 |
+| `handler`   | 事件处理函数                                                       |
+| `trigger`   | 事件触发类型，例如 `ConfigEvent.Changed`                           |
+| `isPreview` | 是否为预览阶段事件                                                 |
 
 具体事件类型、事件参数结构及触发时机以代码文档为准。
 
@@ -332,8 +351,6 @@ public static ConfigEventRegistry SomeConfigChanged => new(
 
 以下内容仍需结合代码文档继续补充：
 
-* `ConfigEvent` 的完整枚举值；
 * `ConfigEventRegistry` 的参数细节；
 * `ConfigItem` 的完整方法列表；
-* `ConfigSource` 的完整枚举值；
 * 不同 Provider 对类型序列化的支持差异。

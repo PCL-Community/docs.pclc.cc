@@ -4,7 +4,7 @@ order: 1
 
 # Lifecycle Management
 
-Lifecycle Management is the basic mechanism used by the PCL CE core library to organize application startup, runtime, and shutdown processes. It is located in the `PCL.Core.App` namespace.
+Lifecycle Management is the basic mechanism used by the PCL CE core library to organize application startup, runtime, and shutdown processes. It is located in the `PCL.Core.App.IoC` namespace.
 
 Through fixed lifecycle states and registerable lifecycle services, this system attaches initialization, runtime tasks, and shutdown cleanup logic from different modules to specific application phases for execution.
 
@@ -35,23 +35,28 @@ The main purposes of the lifecycle system include:
 Lifecycle-related APIs are mainly located in the following namespace:
 
 ```cs
-using PCL.Core.App;
+using PCL.Core.App.IoC;
 ```
 
 ## Lifecycle States
 
 Lifecycle states are represented by the `LifecycleState` enum and are used to describe the current runtime phase of the application.
 
-The states mentioned in this document include:
+The `LifecycleState` enum defines the following states:
 
-| State           | Description          |
-|-----------------|----------------------|
-| `BeforeLoading` | Before-loading phase |
-| `Loaded`        | Loaded phase         |
-| `Running`       | Normal running phase |
-| `Exiting`       | Exiting phase        |
+| State            | Description                                 |
+|------------------|---------------------------------------------|
+| `Manual`         | Manually managed; not started automatically |
+| `BeforeLoading`  | Pre-loading phase                           |
+| `Loading`        | Loading phase                               |
+| `Loaded`         | Post-loading phase                          |
+| `WindowCreating` | Main window creation phase                  |
+| `WindowCreated`  | After the main window has been created      |
+| `Running`        | Normal runtime                              |
+| `Closing`        | Close-request phase                         |
+| `Exiting`        | Shutdown phase                              |
 
-Lifecycle services declare their starting state through the `LifecycleService` attribute. A service starts when the application enters the corresponding state.
+Lifecycle services declare their starting state through the `LifecycleService` attribute. A service starts when the application enters that state, except for `Manual` services, which must be started explicitly.
 
 The exact state transition order, state meanings, and scheduling details are subject to the code documentation in the source.
 
@@ -63,10 +68,12 @@ A standard lifecycle service needs to meet the following conditions:
 
 * Implement the `ILifecycleService` interface, or inherit from a service base class provided by the lifecycle system;
 * Declare the service starting state with the `LifecycleService` attribute;
-* Provide a construction method that can be instantiated by the lifecycle system;
+* Provide a constructor that the lifecycle system can use to create the service;
 * Implement startup and shutdown logic.
 
 Lifecycle services are usually used to carry global capabilities of a module, such as message broadcasting, update checks, event buses, configuration system initialization, and similar functionality.
+
+In application code, declare the service as a `partial` class, combine `[LifecycleService]` with `[LifecycleScope]`, and use `[LifecycleStart]` and `[LifecycleStop]` to mark the start and stop methods. The source generator then generates the `ILifecycleService` implementation and the corresponding method calls. Implement `ILifecycleService` manually when a service requires full control over its lifecycle.
 
 ## `ILifecycleService`
 
@@ -80,7 +87,7 @@ Types that implement this interface can be recognized and scheduled by the lifec
 |---------------------|-------------------------------------------|
 | `Identifier`        | Unique service identifier                 |
 | `Name`              | Service display name                      |
-| `SupportAsyncStart` | Whether asynchronous startup is supported |
+| `SupportAsync`      | Whether asynchronous startup is supported |
 | `StartAsync()`      | Called when the service starts            |
 | `StopAsync()`       | Called when the service stops             |
 
@@ -101,10 +108,10 @@ public sealed class MessageService : ILifecycleService
 
 ### Parameters
 
-| Parameter        | Description                       |
-|------------------|-----------------------------------|
-| `LifecycleState` | The starting state of the service |
-| `Priority`       | The service startup priority      |
+| Name         | Description                                                                                                   |
+|--------------|---------------------------------------------------------------------------------------------------------------|
+| `startState` | The lifecycle state at which the service starts                                                               |
+| `Priority`   | Startup priority within the same state. Higher values start first; avoid extreme values for non-core services |
 
 At compile time, the source generator scans service types with the `LifecycleService` attribute and records them into the automatically generated lifecycle registration file. At runtime, the lifecycle system initializes and starts services in the corresponding states according to the registration information.
 
@@ -113,7 +120,7 @@ At compile time, the source generator scans service types with the `LifecycleSer
 The following example shows a lifecycle service that directly implements `ILifecycleService`.
 
 ```cs
-using PCL.Core.App;
+using PCL.Core.App.IoC;
 
 namespace PCL.Core.Native;
 
@@ -124,7 +131,7 @@ public sealed class MessageService : ILifecycleService
 
     public string Name => "Message Service";
 
-    public bool SupportAsyncStart => true;
+    public bool SupportAsync => true;
 
     private static LifecycleContext? _context;
 
@@ -185,7 +192,7 @@ After a service declares itself stopped, the lifecycle system will not call that
 `GeneralService` is a convenient base class provided by the lifecycle system. If a service does not need to inherit from another type, it can inherit from `GeneralService` to reduce boilerplate code.
 
 ```cs
-using PCL.Core.App;
+using PCL.Core.App.IoC;
 
 namespace PCL.Core.Update;
 
